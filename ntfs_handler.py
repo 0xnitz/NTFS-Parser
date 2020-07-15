@@ -4,7 +4,7 @@ READ_ENTIRE_MFT = b'\xff'
 
 
 class NTFSHandler:
-    def __init__(self, sector_reader):
+    def __init__(self):
         """
         A constructor for the NTFSHandler class
         :param sector_reader: a SectorReader object
@@ -13,7 +13,7 @@ class NTFSHandler:
         self.sectors_per_cluster = 0
         self.mft_entry_size = 0
         self.mft_start_sector = 0
-        self.sector_reader = sector_reader
+        self.sector_reader = SectorReader(r'\\.\physicaldisk0')
         self.MFT_OFFSET = 0
         self.entry_i = 0
 
@@ -22,7 +22,7 @@ class NTFSHandler:
         This function reads the boot sector of the file system and locates the start of the MFT
         :return: the starting sector for the MFT
         """
-        self.MFT_OFFSET = 0
+        self.MFT_OFFSET = 1
         self.mft_entry_size = 0x200 # Change this to size in sectors
         self.sectors_per_cluster = 8
         return self.MFT_OFFSET

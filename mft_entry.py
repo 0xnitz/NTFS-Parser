@@ -24,4 +24,4 @@ class MFTEntry:
         :return: file's name is equal to filename
         """
 
-        return self.parser.get_attribute(FILE_NAME_TYPE, self.entry) == filename
+        return self.parser.get_attribute(FILE_NAME_TYPE, self.entry).decode() == filename

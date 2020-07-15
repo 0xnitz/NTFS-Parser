@@ -1,5 +1,9 @@
-from parser import *
 import sys
+import time
+from ntfs_parser import *
+
+start = time.time()
+
 
 def main():
     #if len(sys.argv) != 2:
@@ -8,10 +12,12 @@ def main():
     #    exit(1)
     #
     #filename = sys.argv[1]
+
     filename = '$MFT'
     parser = Parser()
     parser.find_file(filename)
 
+    print('Runtime -> {0}s'.format(time.time() - start))
 
 if __name__ == "__main__":
     main()

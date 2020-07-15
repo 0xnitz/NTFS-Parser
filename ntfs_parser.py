@@ -22,7 +22,7 @@ class Parser:
         current_entry = MFTEntry(b'')
 
         # Iterating over the MFT and searching for the filename
-        while current_entry != READ_ENTIRE_MFT:
+        while current_entry.entry != READ_ENTIRE_MFT:
             current_entry = MFTEntry(self.handler.get_next_entry())
             if current_entry == filename:
                 print('Found it!')
