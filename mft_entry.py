@@ -1,6 +1,13 @@
+from mft_parser import MFTParser
+
+FILE_NAME_TYPE = 0x30
+DATA_TYPE = 0x80
+
+
 class MFTEntry:
     def __init__(self, entry):
         self.entry = entry
+        self.parser = MFTParser()
 
     def read_data(self):
         """
@@ -8,7 +15,7 @@ class MFTEntry:
         :return: data attribute contents
         """
 
-        return b''
+        return self.parser.get_attribute(DATA_TYPE, self.entry)
 
     def __eq__(self, filename):
         """
@@ -17,4 +24,4 @@ class MFTEntry:
         :return: file's name is equal to filename
         """
 
-        return True
+        return self.parser.get_attribute(FILE_NAME_TYPE, self.entry) == filename
