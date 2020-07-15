@@ -10,11 +10,21 @@ class MFTParser:
         """
         Extracts the actual filename from the $FILE_NAME attribute
         :param attribute: The binary attribute from the MFT
-        :return: the filename in bytes
+        :return: The filename in bytes
         """
 
         length_in_bytes = attribute[0x58] * 2
         return attribute[0x5a:0x5a+length_in_bytes]
+
+    def parse_data(self, attribute):
+        """
+        Extracts the actual data from the $DATA attribute
+        :param attribute: The binary attribute from the MFT
+        :return: The $DATA contents
+        """
+
+        length = struct.unpack('I', attribute[0x10:0x14])[0]
+        return attribute[0x18:0x18+length]
 
     def get_attribute(self, attribute_code, mft_entry):
         """

@@ -1,4 +1,4 @@
-from mft_parser import MFTParser
+from attribute_parser import MFTParser
 from mft_entry import MFTEntry
 from ntfs_handler import *
 from sector_reader import SectorReader
@@ -25,7 +25,6 @@ class Parser:
         current_entry = MFTEntry(self.handler.get_next_entry())
         while len(current_entry.entry) > 0:
             if current_entry == filename:
-                print('Found it!')
                 return current_entry.read_data()
             current_entry = MFTEntry(self.handler.get_next_entry())
 
