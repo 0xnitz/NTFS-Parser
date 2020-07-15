@@ -1,13 +1,11 @@
-from mft_parser import MFTParser
-
-FILE_NAME_TYPE = 0x30
-DATA_TYPE = 0x80
+from mft_parser import *
+from constants import *
 
 
 class MFTEntry:
     def __init__(self, entry):
         self.entry = entry
-        self.parser = MFTParser()
+        self.mft_parser = MFTParser()
 
     def read_data(self):
         """
@@ -15,7 +13,10 @@ class MFTEntry:
         :return: data attribute contents
         """
 
-        return self.parser.get_attribute(DATA_TYPE, self.entry)
+        if self.mft_parser.is_resident(self.mft_parser.get_attribute(DATA_TYPE, self)):
+            pass
+
+        return b'Resident!'
 
     def __eq__(self, filename):
         """
@@ -24,4 +25,11 @@ class MFTEntry:
         :return: file's name is equal to filename
         """
 
-        return self.parser.get_attribute(FILE_NAME_TYPE, self.entry).decode() == filename
+        # Extracting the filename from the mft entry
+        extracted_filename = self.mft_parser.parse_filename(self.mft_parser.get_attribute(FILE_NAME_TYPE, self)).decode()
+
+        # Removing the extra null bytes between each char
+        extracted_filename = ''.join(extracted_filename.split('\x00'))
+
+        # Checking to see if we found the file
+        return extracted_filename == filename

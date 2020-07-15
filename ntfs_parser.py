@@ -1,9 +1,8 @@
 from mft_parser import MFTParser
 from mft_entry import MFTEntry
-from ntfs_handler import NTFSHandler, READ_ENTIRE_MFT
+from ntfs_handler import *
 from sector_reader import SectorReader
-
-FAILURE = b'\x01'
+from constants import *
 
 
 class Parser:
@@ -19,13 +18,15 @@ class Parser:
         :param filename:
         :return:
         """
+
         current_entry = MFTEntry(b'')
 
         # Iterating over the MFT and searching for the filename
-        while current_entry.entry != READ_ENTIRE_MFT:
-            current_entry = MFTEntry(self.handler.get_next_entry())
+        current_entry = MFTEntry(self.handler.get_next_entry())
+        while len(current_entry.entry) > 0:
             if current_entry == filename:
                 print('Found it!')
                 return current_entry.read_data()
+            current_entry = MFTEntry(self.handler.get_next_entry())
 
         return FAILURE

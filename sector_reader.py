@@ -1,4 +1,4 @@
-SECTOR_SIZE = 512
+from constants import *
 
 
 class SectorReader:

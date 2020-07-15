@@ -1,7 +1,5 @@
 from sector_reader import SectorReader, SECTOR_SIZE
 
-READ_ENTIRE_MFT = b'\xff'
-
 
 class NTFSHandler:
     def __init__(self):
@@ -45,3 +43,6 @@ class NTFSHandler:
 
         self.entry_i += 1
         return temp_file.read(self.mft_entry_size)
+
+    def get_entry_size(self):
+        return self.mft_entry_size

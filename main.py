@@ -1,6 +1,7 @@
 import sys
 import time
 from ntfs_parser import *
+from constants import *
 
 start = time.time()
 
@@ -15,7 +16,9 @@ def main():
 
     filename = '$MFT'
     parser = Parser()
-    parser.find_file(filename)
+    ret_val = parser.find_file(filename)
+    if ret_val != FAILURE:
+        print(ret_val)
 
     print('Runtime -> {0}s'.format(time.time() - start))
 
