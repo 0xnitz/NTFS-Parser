@@ -90,13 +90,6 @@ class NTFSHandler:
                 self.mft_start_sector + self.mft_sector_offset, b'FILE')
 
         self.mft_sector_offset += sectors_read
-
-        next_sector = self.sector_reader.read_sector(self.mft_start_sector + self.mft_sector_offset)
-        while b'FILE' != next_sector[:0x4]:
-            current_entry += next_sector
-            self.mft_sector_offset += 1
-            next_sector = self.sector_reader.read_sector(self.mft_start_sector + self.mft_sector_offset)
-
         self.entry_i += 1
 
         return current_entry

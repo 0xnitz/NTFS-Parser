@@ -14,7 +14,7 @@ def main():
     #
     #filename = sys.argv[1]
 
-    filename = 'common.lua'
+    filename = 'grunt.png'
 
     parser = NTFSParser()
     print('[] Searching for file {0}...'.format(filename))

@@ -9,6 +9,7 @@ class SectorReader:
 
     def __init__(self, disk):
         self.disk = disk
+        self.file = open(self.disk, 'rb')
 
     def read_from(self, sector_start, length=1):
         """
@@ -18,12 +19,11 @@ class SectorReader:
         :return: Binary data from the sectors
         """
 
-        file = open(self.disk, 'rb')
-        file.seek(sector_start * SECTOR_SIZE)
+        self.file.seek(sector_start * SECTOR_SIZE)
         data = b''
 
         for i in range(length):
-            data += file.read(SECTOR_SIZE)
+            data += self.file.read(SECTOR_SIZE)
 
         return data
 
@@ -34,9 +34,8 @@ class SectorReader:
         :return: The sector's binary data
         """
 
-        file = open(self.disk, 'rb')
-        file.seek(sector * SECTOR_SIZE)
-        return file.read(SECTOR_SIZE)
+        self.file.seek(sector * SECTOR_SIZE)
+        return self.file.read(SECTOR_SIZE)
 
     def read_until(self, sector_start, byte_string):
         """
@@ -46,15 +45,14 @@ class SectorReader:
         :return: The Binary data read
         """
 
-        file = open(self.disk, 'rb')
-        file.seek(sector_start * SECTOR_SIZE)
+        self.file.seek(sector_start * SECTOR_SIZE)
         sectors_read = 1
-        data = file.read(SECTOR_SIZE)
+        data = self.file.read(SECTOR_SIZE)
         sector = b''
 
         while byte_string not in sector:
             data += sector
-            sector = file.read(SECTOR_SIZE)
+            sector = self.file.read(SECTOR_SIZE)
             sectors_read += 1
 
         return data, sectors_read
