@@ -14,7 +14,7 @@ def main():
     #
     #filename = sys.argv[1]
 
-    filename = 'a.txt'
+    filename = '$Quota'
     parser = NTFSParser()
     ret_val = parser.find_file(filename)
 
