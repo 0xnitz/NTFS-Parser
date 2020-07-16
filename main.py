@@ -14,7 +14,7 @@ def main():
     #
     #filename = sys.argv[1]
 
-    filename = '$Quota'
+    filename = '$AttrDef'
 
     parser = NTFSParser()
     print('[] Searching for file {0}...'.format(filename))
@@ -22,7 +22,7 @@ def main():
 
     if ret_val != FAILURE:
         print('[] Found it!\n{0}\'s contents:\n'.format(filename))
-        print(ret_val.decode(), end='\n\n')
+        print(ret_val, end='\n\n')
     else:
         print('[] {0} file not found!'.format(filename), end='\n\n')
 

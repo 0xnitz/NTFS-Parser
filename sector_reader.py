@@ -20,10 +20,10 @@ class SectorReader:
 
         file = open(self.disk, 'rb')
         file.seek(sector_start * SECTOR_SIZE)
-        data = []
+        data = b''
 
         for i in range(length):
-            data.append(file.read(SECTOR_SIZE))
+            data += file.read(SECTOR_SIZE)
 
         return data
 
