@@ -15,7 +15,12 @@ class SectorReader:
 
         file = open(self.disk, 'rb')
         file.seek(sector_start * SECTOR_SIZE)
-        return file.read(SECTOR_SIZE * length)
+        data = []
+
+        for i in range(length):
+            data.append(file.read(SECTOR_SIZE))
+
+        return data
 
     def read_sector(self, sector):
         """
