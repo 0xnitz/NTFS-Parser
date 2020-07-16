@@ -80,13 +80,16 @@ class NTFSHandler:
         if self.mft_start_sector + self.mft_sector_offset == self.mft_last_sector + 1:
             return READ_ENTIRE_MFT
 
-        # Add skipping over un-allocated for runtime purposes
-        # allocated = False
-        # while not allocated:
-
         # Change to read_until
-        current_entry = self.sector_reader.read_sector(self.mft_start_sector + self.mft_sector_offset)
-        self.mft_sector_offset += 1
+        current_entry, sectors_read = self.sector_reader.read_until(
+            self.mft_start_sector + self.mft_sector_offset, b'FILE')
+        self.mft_sector_offset += sectors_read
+
+        while not current_entry[0x16] or current_entry[:0x4] != b'FILE':
+            current_entry, sectors_read = self.sector_reader.read_until(
+                self.mft_start_sector + self.mft_sector_offset, b'FILE')
+
+        self.mft_sector_offset += sectors_read
 
         next_sector = self.sector_reader.read_sector(self.mft_start_sector + self.mft_sector_offset)
         while b'FILE' != next_sector[:0x4]:

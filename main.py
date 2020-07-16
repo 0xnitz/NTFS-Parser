@@ -14,7 +14,7 @@ def main():
     #
     #filename = sys.argv[1]
 
-    filename = '$AttrDef'
+    filename = 'common.lua'
 
     parser = NTFSParser()
     print('[] Searching for file {0}...'.format(filename))

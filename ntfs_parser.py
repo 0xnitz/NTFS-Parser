@@ -33,7 +33,8 @@ class NTFSParser:
             # Using the __eq__ operator of MFTEntry to check if the entry has the correct filename
             if current_entry == filename:
                 return self.handler.read_data(current_entry)
-            current_entry = MFTEntry(self.handler.get_next_entry())
+
+            current_entry.entry = self.handler.get_next_entry()
 
         # After iterating after the whole MFT, file not found
         return FAILURE

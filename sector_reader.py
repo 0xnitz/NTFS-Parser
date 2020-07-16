@@ -38,19 +38,23 @@ class SectorReader:
         file.seek(sector * SECTOR_SIZE)
         return file.read(SECTOR_SIZE)
 
-    def read_until(self, sector_start, string):
+    def read_until(self, sector_start, byte_string):
         """
         Read sectors until a string
         :param sector_start: The sector to start reading from
-        :param string: The string to find
+        :param byte_string: The byte_string to find
         :return: The Binary data read
         """
 
         file = open(self.disk, 'rb')
         file.seek(sector_start * SECTOR_SIZE)
-        data = b''
+        sectors_read = 1
+        data = file.read(SECTOR_SIZE)
+        sector = b''
 
-        while bytes(string) not in data:
-            data += file.read(SECTOR_SIZE)
+        while byte_string not in sector:
+            data += sector
+            sector = file.read(SECTOR_SIZE)
+            sectors_read += 1
 
-        return data
+        return data, sectors_read
