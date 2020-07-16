@@ -2,8 +2,14 @@ from constants import *
 
 
 class SectorReader:
+    """
+    This class deals with input from the physical disks.
+    It can read sectors from the disk itself.
+    """
+
     def __init__(self, disk):
         self.disk = disk
+        self.file = open(self.disk, 'rb')
 
     def read_from(self, sector_start, length=1):
         """
@@ -13,9 +19,13 @@ class SectorReader:
         :return: Binary data from the sectors
         """
 
-        file = open(self.disk, 'rb')
-        file.seek(sector_start * SECTOR_SIZE)
-        return file.read(SECTOR_SIZE * length)
+        self.file.seek(sector_start * SECTOR_SIZE)
+        data = b''
+
+        for i in range(length):
+            data += self.file.read(SECTOR_SIZE)
+
+        return data
 
     def read_sector(self, sector):
         """
@@ -24,23 +34,25 @@ class SectorReader:
         :return: The sector's binary data
         """
 
-        file = open(self.disk, 'rb')
-        file.seek(sector * SECTOR_SIZE)
-        return file.read(SECTOR_SIZE)
+        self.file.seek(sector * SECTOR_SIZE)
+        return self.file.read(SECTOR_SIZE)
 
-    def read_until(self, sector_start, string):
+    def read_until(self, sector_start, byte_string):
         """
         Read sectors until a string
         :param sector_start: The sector to start reading from
-        :param string: The string to find
+        :param byte_string: The byte_string to find
         :return: The Binary data read
         """
 
-        file = open(self.disk, 'rb')
-        file.seek(sector_start * SECTOR_SIZE)
-        data = b''
+        self.file.seek(sector_start * SECTOR_SIZE)
+        sectors_read = 1
+        data = self.file.read(SECTOR_SIZE)
+        sector = b''
 
-        while bytes(string) not in data:
-            data += file.read(SECTOR_SIZE)
+        while byte_string not in sector:
+            data += sector
+            sector = self.file.read(SECTOR_SIZE)
+            sectors_read += 1
 
-        return data
+        return data, sectors_read
