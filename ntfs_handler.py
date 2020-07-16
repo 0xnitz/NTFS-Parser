@@ -3,6 +3,33 @@ from constants import *
 import struct
 
 
+def bytes_to_number(bytes_object):
+    """
+    This function takes in a bytes object and converts it to a number (1-8 length)
+    :param bytes_object: The bytes object to convert
+    :return: The result
+    """
+
+    bytes_object_length = len(bytes_object)
+    n = 0
+
+    if len(bytes_object) > 8:
+        return 0
+
+    if bytes_object_length == 1:
+        n = bytes_object[0]
+    elif bytes_object_length == 2:
+        n = struct.unpack('H', bytes_object)[0]
+    elif 2 < bytes_object_length <= 4:
+        bytes_object += b'\x00' * (4 - bytes_object_length)
+        n = struct.unpack('I', bytes_object)[0]
+    elif 4 < bytes_object_length <= 8:
+        bytes_object += b'\x00' * (8 - bytes_object_length)
+        n = struct.unpack('Q', bytes_object)[0]
+
+    return n
+
+
 class NTFSHandler:
     """
     This class deals with finding the MFT from the VBR and iterating over the MFT to find new entries to parse.
@@ -53,7 +80,7 @@ class NTFSHandler:
         if self.mft_start_sector + self.mft_sector_offset == self.mft_last_sector + 1:
             return READ_ENTIRE_MFT
 
-        # Add skipping over un-allocated for runtime purpuses
+        # Add skipping over un-allocated for runtime purposes
         # allocated = False
         # while not allocated:
 
@@ -92,6 +119,7 @@ class NTFSHandler:
         if data_attribute == NO_SUCH_ATTRIBUTE:
             return b''
 
+        # Resident $DATA, call read_resident_data to parse and retrieve it
         if mft_entry.attribute_parser.is_resident(data_attribute):
             return mft_entry.read_resident_data()
 
@@ -99,47 +127,38 @@ class NTFSHandler:
         i = run_list_offset
         non_resident_data = b''
 
+        # Iterate over the run-list
         while i < len(data_attribute):
             size = data_attribute[i]
             if size == 0:
                 return non_resident_data
 
+            # The size is one byte,
+            # and it's nibbles represent the amount of bytes the first_cluster and the cluster_length will take
             cluster_count_length = size & 0xf
             first_cluster_length = size >> 4
 
+            # Extracting the cluster_count and first_cluster
             cluster_count = data_attribute[i+1:i+1+cluster_count_length]
             first_cluster = data_attribute[i+1+cluster_count_length:i+1+cluster_count_length+first_cluster_length]
 
             sector_count = cluster_count
             first_sector = first_cluster
 
-            if first_cluster_length == 1:
-                first_sector = first_cluster[0]
-            elif first_cluster_length == 2:
-                first_sector = struct.unpack('H', first_cluster)[0]
-            elif 2 < first_cluster_length <= 4:
-                first_cluster += b'\x00' * (4 - first_cluster_length)
-                first_sector = struct.unpack('I', first_cluster)[0]
-            elif 4 < first_cluster_length <= 8:
-                first_cluster += b'\x00' * (8 - first_cluster_length)
-                first_sector = struct.unpack('Q', first_cluster)[0]
+            # Converting the first_cluster bytes into a number
+            first_sector = bytes_to_number(first_cluster)
 
-            if cluster_count_length == 1:
-                sector_count = ord(cluster_count.decode())
-            elif cluster_count_length == 2:
-                sector_count = struct.unpack('H', cluster_count)[0]
-            elif 2 < cluster_count_length <= 4:
-                cluster_count += b'\x00' * (4 - cluster_count_length)
-                sector_count = struct.unpack('I', cluster_count)[0]
-            elif 4 < cluster_count_length <= 8:
-                cluster_count += b'\x00' * (8 - cluster_count_length)
-                sector_count = struct.unpack('Q', cluster_count)[0]
+            # Converting the cluster_count bytes into a number
+            sector_count = bytes_to_number(cluster_count)
 
+            # Converting between cluster and sectors
             first_sector *= self.sectors_per_cluster
             sector_count *= self.sectors_per_cluster
 
+            # Reading the data from the disk
             non_resident_data += self.sector_reader.read_from(first_sector, sector_count)
 
+            # Jumping to the next cluster run
             i += 1 + cluster_count_length + first_cluster_length
 
         return non_resident_data
