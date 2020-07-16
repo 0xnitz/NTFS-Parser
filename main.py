@@ -14,7 +14,7 @@ def main():
     #
     #filename = sys.argv[1]
 
-    filename = '$Volume'
+    filename = 'a.txt'
     parser = NTFSParser()
     ret_val = parser.find_file(filename)
 
