@@ -9,9 +9,9 @@ class MFTEntry:
 
     def __init__(self, entry):
         self.entry = entry
-        self.attribute_parser = MFTParser()
+        self.attribute_parser = AttributeParser()
 
-    def read_data(self):
+    def read_resident_data(self):
         """
         Read the data attribute using the MFTParser class
         :return: data attribute contents
@@ -20,15 +20,8 @@ class MFTEntry:
         # Cut the $DATA attribute from the entry
         data_attribute = self.attribute_parser.get_attribute(DATA_TYPE, self)
 
-        # $DATA attribute not found
-        if data_attribute == NO_SUCH_ATTRIBUTE:
-            return b'$DATA doesn\'t exist!'
-
         # If the $DATA attribute is resident, parse and print it's data
-        if self.attribute_parser.is_resident(data_attribute):
-            return self.attribute_parser.parse_data(data_attribute)
-
-        return b'This $DATA is non-resident!'
+        return self.attribute_parser.parse_data(data_attribute)
 
     def __eq__(self, filename):
         """
@@ -73,3 +66,4 @@ class MFTEntry:
 
         # Checking if the entry has the signature and a $FILE_NAME attribute
         return b'FILE' == self.entry[:0x4] and b'\x30\x00\x00\x00' in self.entry
+

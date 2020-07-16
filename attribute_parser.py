@@ -2,7 +2,7 @@ import struct
 from constants import *
 
 
-class MFTParser:
+class AttributeParser:
     """
     These function don't need a class, they can be static functions.
     I chose to put them in the MFTParser class to group functions that parse mft entries together.

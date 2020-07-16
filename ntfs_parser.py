@@ -1,4 +1,4 @@
-from attribute_parser import MFTParser
+from attribute_parser import AttributeParser
 from mft_entry import MFTEntry
 from ntfs_handler import *
 from sector_reader import SectorReader
@@ -13,7 +13,7 @@ class NTFSParser:
     """
 
     def __init__(self):
-        self.mft_parser = MFTParser()
+        self.mft_parser = AttributeParser()
         self.handler = NTFSHandler()
 
         # Finding the MFT sector offset using the VBR
@@ -32,7 +32,7 @@ class NTFSParser:
         while len(current_entry.entry) > 0:
             # Using the __eq__ operator of MFTEntry to check if the entry has the correct filename
             if current_entry == filename:
-                return current_entry.read_data()
+                return self.handler.read_data(current_entry)
             current_entry = MFTEntry(self.handler.get_next_entry())
 
         # After iterating after the whole MFT, file not found
