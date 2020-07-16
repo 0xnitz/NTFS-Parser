@@ -15,15 +15,16 @@ def main():
     #filename = sys.argv[1]
 
     filename = '$Volume'
-    parser = Parser()
+    parser = NTFSParser()
     ret_val = parser.find_file(filename)
+
     if ret_val != FAILURE:
         print('Found it!\nFile\'s Contents:\n')
         print(ret_val.decode(), end='\n\n')
     else:
         print('File not found!', end='\n\n')
 
-    print('Runtime -> {0}s'.format(time.time() - start))
+    print('Parser finished execution, runtime -> {0}s'.format(time.time() - start))
 
 
 if __name__ == "__main__":

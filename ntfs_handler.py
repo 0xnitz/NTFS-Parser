@@ -1,11 +1,11 @@
 from sector_reader import SectorReader, SECTOR_SIZE
+from constants import *
 
 
 class NTFSHandler:
     def __init__(self):
         """
         A constructor for the NTFSHandler class
-        :param sector_reader: a SectorReader object
         """
 
         self.sectors_per_cluster = 0
@@ -20,9 +20,11 @@ class NTFSHandler:
         This function reads the boot sector of the file system and locates the start of the MFT
         :return: the starting sector for the MFT
         """
+
         self.MFT_OFFSET = 1
         self.mft_entry_size = 0x200 # Change this to size in sectors
         self.sectors_per_cluster = 8
+
         return self.MFT_OFFSET
 
     def get_next_entry(self):
@@ -30,6 +32,7 @@ class NTFSHandler:
         This function reads the next mft entry and returns it
         :return: bytes object of an mft entry
         """
+
         # MFT file not yet found
         if self.MFT_OFFSET == 0:
             return
@@ -45,4 +48,8 @@ class NTFSHandler:
         return temp_file.read(self.mft_entry_size)
 
     def get_entry_size(self):
+        """
+        :return: The MFT entry size as found in the $MFT entry
+        """
+
         return self.mft_entry_size

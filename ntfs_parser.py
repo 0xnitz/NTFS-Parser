@@ -5,7 +5,7 @@ from sector_reader import SectorReader
 from constants import *
 
 
-class Parser:
+class NTFSParser:
     def __init__(self):
         self.mft_parser = MFTParser()
         self.handler = NTFSHandler()
@@ -18,8 +18,6 @@ class Parser:
         :param filename:
         :return:
         """
-
-        current_entry = MFTEntry(b'')
 
         # Iterating over the MFT and searching for the filename
         current_entry = MFTEntry(self.handler.get_next_entry())
