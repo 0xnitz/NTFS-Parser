@@ -6,10 +6,18 @@ from constants import *
 
 
 class NTFSParser:
+    """
+    This class represents my NTFSParser, it controls all the other objects.
+    The parser locates the MFT from the VBR and iterates over it,
+    parsing it until it finds an entry with the same filename.
+    """
+
     def __init__(self):
         self.mft_parser = MFTParser()
         self.handler = NTFSHandler()
-        self.MFT_OFFSET = self.handler.find_mft()
+
+        # Finding the MFT sector offset using the VBR
+        self.handler.find_mft()
 
     def find_file(self, filename):
         """
@@ -22,8 +30,10 @@ class NTFSParser:
         # Iterating over the MFT and searching for the filename
         current_entry = MFTEntry(self.handler.get_next_entry())
         while len(current_entry.entry) > 0:
+            # Using the __eq__ operator of MFTEntry to check if the entry has the correct filename
             if current_entry == filename:
                 return current_entry.read_data()
             current_entry = MFTEntry(self.handler.get_next_entry())
 
+        # After iterating after the whole MFT, file not found
         return FAILURE

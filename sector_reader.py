@@ -2,6 +2,11 @@ from constants import *
 
 
 class SectorReader:
+    """
+    This class deals with input from the physical disks.
+    It can read sectors from the disk itself.
+    """
+
     def __init__(self, disk):
         self.disk = disk
 

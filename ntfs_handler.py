@@ -4,6 +4,10 @@ import struct
 
 
 class NTFSHandler:
+    """
+    This class deals with finding the MFT from the VBR and iterating over the MFT to find new entries to parse.
+    """
+
     def __init__(self):
         """
         A constructor for the NTFSHandler class
@@ -12,10 +16,10 @@ class NTFSHandler:
         self.sectors_per_cluster = 0
         self.mft_entry_size = 0
         self.mft_start_sector = 0
-        self.sector_reader = SectorReader(r'\\.\physicaldrive0')
         self.entry_i = 0
         self.mft_sector_offset = 0
         self.mft_last_sector = 0
+        self.sector_reader = SectorReader(r'\\.\physicaldrive0')
 
     def find_mft(self):
         """

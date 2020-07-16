@@ -15,16 +15,18 @@ def main():
     #filename = sys.argv[1]
 
     filename = '$Quota'
+
     parser = NTFSParser()
+    print('[] Searching for file {0}...'.format(filename))
     ret_val = parser.find_file(filename)
 
     if ret_val != FAILURE:
-        print('Found it!\nFile\'s Contents:\n')
+        print('[] Found it!\n{0}\'s contents:\n'.format(filename))
         print(ret_val.decode(), end='\n\n')
     else:
-        print('File not found!', end='\n\n')
+        print('[] {0} file not found!'.format(filename), end='\n\n')
 
-    print('Parser finished execution, runtime -> {0}s'.format(time.time() - start))
+    print('[] Parser finished execution, runtime -> {0}s...'.format(time.time() - start))
 
 
 if __name__ == "__main__":
