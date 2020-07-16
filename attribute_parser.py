@@ -41,7 +41,11 @@ class MFTParser:
         while offset < len(mft_entry.entry):
             attribute_len = struct.unpack('I', mft_entry.entry[offset+4:offset+8])[0]
             current_attribute_code = struct.unpack('I', mft_entry.entry[offset:offset+4])[0]
+
             if current_attribute_code != attribute_code:
+                if current_attribute_code == 0xffffffff:
+                    return NO_SUCH_ATTRIBUTE
+
                 offset += attribute_len
                 continue
 

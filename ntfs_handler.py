@@ -29,8 +29,9 @@ class NTFSHandler:
         data = self.sector_reader.read_sector(1161216)
         SECTOR_SIZE = struct.unpack('H', data[0xb:0xd])[0]
         self.sectors_per_cluster = data[0xd]
-        self.mft_start_sector = 1161216 + struct.unpack('<Q', data[0x30:0x38])[0]
+        self.mft_start_sector = 1161216 + struct.unpack('<Q', data[0x30:0x38])[0] * self.sectors_per_cluster
 
+        # Find the last mft sector using the $Mft
         self.mft_last_sector = 0
         self.mft_entry_size = 1024
 
@@ -48,11 +49,23 @@ class NTFSHandler:
         if self.mft_start_sector + self.mft_sector_offset == self.mft_last_sector + 1:
             return READ_ENTIRE_MFT
 
-        temp_file = open('sample_mft.bin', 'rb')
-        temp_file.seek(self.entry_i * self.mft_entry_size)
+        # Add skipping over un-allocated for runtime purpuses
+        # allocated = False
+        # while not allocated:
+
+        # Change to read_until
+        current_entry = self.sector_reader.read_sector(self.mft_start_sector + self.mft_sector_offset)
+        self.mft_sector_offset += 1
+
+        next_sector = self.sector_reader.read_sector(self.mft_start_sector + self.mft_sector_offset)
+        while b'FILE' != next_sector[:0x4]:
+            current_entry += next_sector
+            self.mft_sector_offset += 1
+            next_sector = self.sector_reader.read_sector(self.mft_start_sector + self.mft_sector_offset)
 
         self.entry_i += 1
-        return temp_file.read(self.mft_entry_size)
+
+        return current_entry
 
     def get_entry_size(self):
         """
