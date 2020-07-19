@@ -57,10 +57,10 @@ class NTFSHandler:
         global SECTOR_SIZE
 
         # 1161216 is the sector offset of the vbr
-        data = self.sector_reader.read_sector(1161216)
+        data = self.sector_reader.read_sector(VBR_OFFSET)
         SECTOR_SIZE = struct.unpack('H', data[0xb:0xd])[0]
         self.sectors_per_cluster = data[0xd]
-        self.mft_start_sector = 1161216 + struct.unpack('<Q', data[0x30:0x38])[0] * self.sectors_per_cluster
+        self.mft_start_sector = VBR_OFFSET + struct.unpack('<Q', data[0x30:0x38])[0] * self.sectors_per_cluster
 
         # Find the last mft sector using the $Mft
         self.mft_last_sector = 0
@@ -152,6 +152,8 @@ class NTFSHandler:
             # Converting between cluster and sectors
             first_sector *= self.sectors_per_cluster
             sector_count *= self.sectors_per_cluster
+
+            first_sector += VBR_OFFSET
 
             # Reading the data from the disk
             non_resident_data += self.sector_reader.read_from(first_sector, sector_count)
