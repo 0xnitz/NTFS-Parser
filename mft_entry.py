@@ -50,8 +50,6 @@ class MFTEntry:
 
             # Removing the extra null bytes between each char
             extracted_filename = ''.join(extracted_filename.split('\x00'))
-            if extracted_filename == 'ClassPublic16.svg':
-                d = 1
         except:
             return False
 
