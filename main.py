@@ -13,7 +13,7 @@ def main():
     #
     #filename = sys.argv[1]
 
-    filename = 'Button.txt'
+    filename = 'ClassPublic16.svgg'
 
     parser = NTFSParser()
     print('[] Searching for file {0}...'.format(filename))

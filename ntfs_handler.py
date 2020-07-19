@@ -46,7 +46,6 @@ class NTFSHandler:
         self.mft_start_sector = 0
         self.entry_i = 0
         self.mft_sector_offset = 0
-        self.mft_last_sector = 0
         self.sector_reader = SectorReader(r'\\.\physicaldrive0')
 
     def find_mft(self):
@@ -57,7 +56,6 @@ class NTFSHandler:
 
         global SECTOR_SIZE
 
-        # 1161216 is the sector offset of the vbr
         data = self.sector_reader.read_sector(VBR_OFFSET)
         SECTOR_SIZE = struct.unpack('H', data[0xb:0xd])[0]
         self.sectors_per_cluster = data[0xd]
@@ -93,6 +91,7 @@ class NTFSHandler:
         while not current_entry[0x16] or current_entry[:0x4] != b'FILE':
             current_entry, sectors_read = self.sector_reader.read_until(
                 self.mft_start_sector + self.mft_sector_offset, b'FILE')
+            break
 
         self.mft_sector_offset += sectors_read
         self.entry_i += 1
