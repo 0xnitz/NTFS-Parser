@@ -1,6 +1,7 @@
 from sector_reader import *
 from constants import *
 from mft_entry import *
+import os
 import struct
 
 
@@ -67,6 +68,28 @@ class NTFSHandler:
 
         # Find the last mft sector using the $Mft
         self.read_data(MFTEntry(self.get_next_entry(no_iteration=True)), index_cluster_runs=True)
+
+    def locate_partition(self):
+        """
+        This function locates the largest partition and finds it's starting offset
+        """
+
+        global VBR_OFFSET
+
+        partitions = os.popen('wmic partition get StartingOffset, Name, Size').read().split('\n')
+        partitions = [i for i in partitions if 'Disk' in i]
+
+        max_size = 0
+        max_size_offset = 0
+
+        for partition in partitions:
+            partition = partition.split()
+
+            if partition[1] == '#0,' and int(partition[4]) > max_size:
+                max_size = int(partition[4])
+                max_size_offset = int(partition[5])
+
+        VBR_OFFSET = round(max_size_offset / SECTOR_SIZE)
 
     def get_next_entry(self, no_iteration=False):
         """

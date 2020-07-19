@@ -16,6 +16,9 @@ class NTFSParser:
         self.mft_parser = AttributeParser()
         self.handler = NTFSHandler()
 
+        # Locating the largest partition on the disk (C:) and setting VBR_OFFSET to the vbr of C:
+        self.handler.locate_partition()
+
         # Finding the MFT sector offset using the VBR
         self.handler.find_mft()
 
