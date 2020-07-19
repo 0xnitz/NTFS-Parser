@@ -9,6 +9,7 @@ class SectorReader:
 
     def __init__(self, disk):
         self.disk = disk
+        self.current_chunk = {0: 0}
         self.file = open(self.disk, 'rb')
 
     def read_from(self, sector_start, length=1):
@@ -20,12 +21,8 @@ class SectorReader:
         """
 
         self.file.seek(sector_start * SECTOR_SIZE)
-        data = b''
 
-        for i in range(length):
-            data += self.file.read(SECTOR_SIZE)
-
-        return data
+        return self.file.read(SECTOR_SIZE * length)
 
     def read_sector(self, sector):
         """
@@ -45,14 +42,34 @@ class SectorReader:
         :return: The Binary data read
         """
 
-        self.file.seek(sector_start * SECTOR_SIZE)
-        sectors_read = 1
-        data = self.file.read(SECTOR_SIZE)
-        sector = b''
+        self.read_new_chunk(sector_start)
 
-        while byte_string not in sector:
-            data += sector
-            sector = self.file.read(SECTOR_SIZE)
-            sectors_read += 1
+        sectors_read = 0
+        data = b''
+
+        # Move get new chunk to a function and do a recursive call if bytestring was not read
+        # Change all function to use chunks
+        for i in range(sector_start - list(self.current_chunk.keys())[0], CHUNK_SIZE):
+            current_sector = list(self.current_chunk.values())[0][i * SECTOR_SIZE:i * SECTOR_SIZE + SECTOR_SIZE]
+            if byte_string in current_sector and i != sector_start - list(self.current_chunk.keys())[0]:
+                break
+            else:
+                sectors_read += 1
+                data += current_sector
+        else:
+            pass
+            #recursive_ret = self.read_until(list(self.current_chunk.keys())[0] + 1, byte_string)
+            #data += recursive_ret[0]
+            #sectors_read += recursive_ret[1]
 
         return data, sectors_read
+
+    def read_new_chunk(self, sector_from):
+        if sector_from < list(self.current_chunk.keys())[0] or \
+                sector_from >= list(self.current_chunk.keys())[0] + CHUNK_SIZE:
+            if list(self.current_chunk.keys())[0] == 0:
+                sector_list = self.read_from(sector_from, CHUNK_SIZE)
+                self.current_chunk = {sector_from: sector_list}
+            else:
+                sector_list = self.read_from(list(self.current_chunk.keys())[-1] + CHUNK_SIZE, CHUNK_SIZE)
+                self.current_chunk = {list(self.current_chunk.keys())[-1] + CHUNK_SIZE: sector_list}
