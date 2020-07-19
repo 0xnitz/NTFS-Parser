@@ -50,6 +50,7 @@ class MFTEntry:
 
             # Removing the extra null bytes between each char
             extracted_filename = ''.join(extracted_filename.split('\x00'))
+            print(extracted_filename)
         except:
             return False
 

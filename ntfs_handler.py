@@ -91,7 +91,6 @@ class NTFSHandler:
                 self.mft_start_sector + self.mft_sector_offset, b'FILE')
             break
 
-        self.mft_sector_offset += sectors_read
         self.entry_i += 1
 
         if self.mft_sector_offset >= self.runs[self.current_run_index][1]:
