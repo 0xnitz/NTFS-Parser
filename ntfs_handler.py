@@ -3,6 +3,10 @@ from constants import *
 from mft_entry import *
 import struct
 
+SECTOR_SIZE_OFFSET = 0xb
+SECTORS_PER_CLUSTER_OFFSET = 0xd
+MFT_START_SECTOR_OFFSET = 0x30
+
 
 def bytes_to_number(bytes_object):
     """
@@ -59,9 +63,11 @@ class NTFSHandler:
         global SECTOR_SIZE
 
         data = self.sector_reader.read_sector(VBR_OFFSET)
-        SECTOR_SIZE = struct.unpack('H', data[0xb:0xd])[0]
-        self.sectors_per_cluster = data[0xd]
-        self.mft_start_sector = VBR_OFFSET + struct.unpack('<Q', data[0x30:0x38])[0] * self.sectors_per_cluster
+        SECTOR_SIZE = struct.unpack('H', data[SECTOR_SIZE_OFFSET:SECTOR_SIZE_OFFSET + 2])[0]
+        self.sectors_per_cluster = data[SECTORS_PER_CLUSTER_OFFSET]
+        self.mft_start_sector = VBR_OFFSET + struct.unpack('<Q',
+                                                            data[MFT_START_SECTOR_OFFSET:MFT_START_SECTOR_OFFSET+8])[0]\
+                                                            * self.sectors_per_cluster
 
         # Find the last mft sector using the $Mft
         self.read_data(MFTEntry(self.get_next_entry(no_iteration=True)), index_cluster_runs=True)
@@ -69,6 +75,8 @@ class NTFSHandler:
     def get_next_entry(self, no_iteration=False):
         """
         This function reads the next mft entry and returns it
+        :arg no_iteration: This argument is used by the find_mft function to get the $MFT entry
+        without incrementing self.mft_sector_offset
         :return: bytes object of an mft entry
         """
 
@@ -85,7 +93,7 @@ class NTFSHandler:
         self.mft_sector_offset += sectors_read
 
         # If the entry is not allocated or damaged, skip to the next entry
-        while not current_entry[0x16] or current_entry[:0x4] != b'FILE':
+        while not current_entry[ENTRY_INUSE] or current_entry[:0x4] != b'FILE':
             current_entry, sectors_read = self.sector_reader.read_until(
                 self.mft_start_sector + self.mft_sector_offset, b'FILE')
             break
@@ -131,7 +139,7 @@ class NTFSHandler:
         if mft_entry.attribute_parser.is_resident(data_attribute):
             return mft_entry.read_resident_data()
 
-        run_list_offset = data_attribute[0x20]
+        run_list_offset = data_attribute[RUN_LIST_OFFSET]
         i = run_list_offset
         non_resident_data = b''
 
@@ -147,8 +155,9 @@ class NTFSHandler:
             first_cluster_length = size >> 4
 
             # Extracting the cluster_count and first_cluster
-            cluster_count = data_attribute[i+1:i+1+cluster_count_length]
-            first_cluster = data_attribute[i+1+cluster_count_length:i+1+cluster_count_length+first_cluster_length]
+            cluster_count = data_attribute[i + 1:i + 1 + cluster_count_length]
+            first_cluster = data_attribute[
+                            i + 1 + cluster_count_length:i + 1 + cluster_count_length + first_cluster_length]
 
             # Converting the first_cluster bytes into a number
             first_sector = bytes_to_number(first_cluster)
@@ -173,5 +182,5 @@ class NTFSHandler:
 
             # Jumping to the next cluster run
             i += 1 + cluster_count_length + first_cluster_length
-        
+
         return non_resident_data

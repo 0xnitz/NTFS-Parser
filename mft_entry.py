@@ -1,6 +1,8 @@
 from attribute_parser import *
 from constants import *
 
+FILE_NAME_TYPE_BYTES = b'\x30\x00\x00\x00'
+
 
 class MFTEntry:
     """
@@ -65,5 +67,5 @@ class MFTEntry:
         """
 
         # Checking if the entry has the signature and a $FILE_NAME attribute
-        return b'FILE' == self.entry[:0x4] and b'\x30\x00\x00\x00' in self.entry
+        return b'FILE' == self.entry[:0x4] and FILE_NAME_TYPE_BYTES in self.entry
 
