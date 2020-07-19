@@ -16,6 +16,9 @@ class NTFSParser:
         self.mft_parser = AttributeParser()
         self.handler = NTFSHandler()
 
+        # Locating the largest partition on the disk (C:) and setting VBR_OFFSET to the vbr of C:
+        self.handler.locate_partition()
+
         # Finding the MFT sector offset using the VBR
         self.handler.find_mft()
 
@@ -33,8 +36,10 @@ class NTFSParser:
             # Using the __eq__ operator of MFTEntry to check if the entry has the correct filename
             if current_entry == filename:
                 return self.handler.read_data(current_entry)
-
             current_entry.entry = self.handler.get_next_entry()
+
+            if current_entry.entry == READ_ENTIRE_MFT:
+                break
 
         # After iterating after the whole MFT, file not found
         return FAILURE
