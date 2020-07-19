@@ -71,5 +71,9 @@ class SectorReader:
                 sector_list = self.read_from(sector_from, CHUNK_SIZE)
                 self.current_chunk = {sector_from: sector_list}
             else:
-                sector_list = self.read_from(list(self.current_chunk.keys())[-1] + CHUNK_SIZE, CHUNK_SIZE)
-                self.current_chunk = {list(self.current_chunk.keys())[-1] + CHUNK_SIZE: sector_list}
+                if list(self.current_chunk.keys())[0] < sector_from < list(self.current_chunk.keys())[0] + CHUNK_SIZE:
+                    sector_list = self.read_from(list(self.current_chunk.keys())[-1] + CHUNK_SIZE, CHUNK_SIZE)
+                    self.current_chunk = {list(self.current_chunk.keys())[-1] + CHUNK_SIZE: sector_list}
+                else:
+                    sector_list = self.read_from(sector_from, CHUNK_SIZE)
+                    self.current_chunk = {sector_from: sector_list}
