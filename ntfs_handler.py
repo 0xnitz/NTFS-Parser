@@ -46,6 +46,8 @@ class NTFSHandler:
         self.mft_start_sector = 0
         self.entry_i = 0
         self.mft_sector_offset = 0
+        self.runs = []
+        self.current_run_index = 0
         self.sector_reader = SectorReader(r'\\.\physicaldrive0')
 
     def find_mft(self):
@@ -75,10 +77,6 @@ class NTFSHandler:
         if self.mft_start_sector == 0:
             return
 
-        # Finished reading the MFT
-        if self.mft_start_sector + self.mft_sector_offset >= self.mft_last_sector + 1:
-            return READ_ENTIRE_MFT
-
         # Finding the next file entry in the $MFT
         current_entry, sectors_read = self.sector_reader.read_until(
             self.mft_start_sector + self.mft_sector_offset, b'FILE')
@@ -95,6 +93,16 @@ class NTFSHandler:
 
         self.mft_sector_offset += sectors_read
         self.entry_i += 1
+
+        if self.mft_sector_offset >= self.runs[self.current_run_index][1]:
+            self.current_run_index += 1
+            self.mft_sector_offset = 0
+
+            # Finished reading the MFT
+            if self.current_run_index == len(self.runs) and not no_iteration:
+                return READ_ENTIRE_MFT
+
+            self.mft_start_sector = self.runs[self.current_run_index][0]
 
         return current_entry
 
@@ -162,7 +170,12 @@ class NTFSHandler:
             if not calc_mft_size:
                 non_resident_data += self.sector_reader.read_from(first_sector, sector_count)
             else:
-                self.mft_last_sector += sector_count
+                if i != run_list_offset:
+                    self.runs.append((self.runs[-1][0] + first_sector - VBR_OFFSET, sector_count))
+                else:
+                    self.runs.append((first_sector, sector_count))
+
+                self.mft_last_sector = first_sector + sector_count
 
             # Jumping to the next cluster run
             i += 1 + cluster_count_length + first_cluster_length
