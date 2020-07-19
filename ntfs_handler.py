@@ -81,10 +81,12 @@ class NTFSHandler:
             return READ_ENTIRE_MFT
 
         # Change to read_until
+        # Finding the next file entry in the $MFT
         current_entry, sectors_read = self.sector_reader.read_until(
             self.mft_start_sector + self.mft_sector_offset, b'FILE')
         self.mft_sector_offset += sectors_read
 
+        # If the entry is not allocated or damaged, skip to the next entry
         while not current_entry[0x16] or current_entry[:0x4] != b'FILE':
             current_entry, sectors_read = self.sector_reader.read_until(
                 self.mft_start_sector + self.mft_sector_offset, b'FILE')
@@ -103,7 +105,7 @@ class NTFSHandler:
 
     def read_data(self, mft_entry):
         """
-        Reads a non-resident $DATA attribute's data from it's runlist
+        Reads a non-resident $DATA attribute's data from it's run-list
         :param mft_entry: The MFTEntry object to get the data from
         :return: The non-resident data
         """

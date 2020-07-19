@@ -1,7 +1,6 @@
 import sys
 import time
 from ntfs_parser import *
-from constants import *
 
 start = time.time()
 
@@ -14,7 +13,7 @@ def main():
     #
     #filename = sys.argv[1]
 
-    filename = 'grunt.png'
+    filename = 'Button.txt'
 
     parser = NTFSParser()
     print('[] Searching for file {0}...'.format(filename))
