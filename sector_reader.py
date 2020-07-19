@@ -57,7 +57,7 @@ class SectorReader:
             # Checking if the byte-string is in the current sector and it's not the first sector read
             # Example: FILE temp temp temp FILE
             # We start reading at the FILE string,
-            # we want to read upto the next FILE and not stop on the first occurrence
+            # we want to read up to the next FILE and not stop on the first occurrence
             if byte_string in current_sector and i != sector_start - self.current_chunk[0]:
                 break
             else:
@@ -68,19 +68,20 @@ class SectorReader:
         return data, sectors_read
 
     def read_new_chunk(self, sector_from):
+        """
+        This function reads from the disk in chunks.
+        It checks if a new chunks needs to be generated and generates it.
+        :param sector_from: Is the sector id the program wants to read from
+        :return:
+        """
+
         # Checking if our offset is not in the the current saved chunk to check if a new chunk should be generated
         if sector_from < self.current_chunk[0] or sector_from >= self.current_chunk[0] + CHUNK_SIZE:
-            # Checking if this is the first chunk
-            if self.current_chunk[0] == 0:
-                # Generating the first chunk
+            # Checking if the sector_from will be included in the next chunk, if so read the adjacent next chunk
+            # Otherwise, generate a new chunk from sector_from
+            if self.current_chunk[0] + CHUNK_SIZE < sector_from < self.current_chunk[0] + CHUNK_SIZE * 2:
+                sector_list = self.read_from(self.current_chunk[0] + CHUNK_SIZE, CHUNK_SIZE)
+                self.current_chunk = self.current_chunk[0] + CHUNK_SIZE, sector_list
+            else:
                 sector_list = self.read_from(sector_from, CHUNK_SIZE)
                 self.current_chunk = sector_from, sector_list
-            else:
-                # Checking if the sector_from will be included in the next chunk, if so read the adjacent next chunk
-                # Otherwise, generate a new chunk from sector_from
-                if self.current_chunk[0] + CHUNK_SIZE < sector_from < self.current_chunk[0] + CHUNK_SIZE * 2:
-                    sector_list = self.read_from(self.current_chunk[0] + CHUNK_SIZE, CHUNK_SIZE)
-                    self.current_chunk = self.current_chunk[0] + CHUNK_SIZE, sector_list
-                else:
-                    sector_list = self.read_from(sector_from, CHUNK_SIZE)
-                    self.current_chunk = sector_from, sector_list

@@ -1,4 +1,4 @@
-from sector_reader import SectorReader, SECTOR_SIZE
+from sector_reader import *
 from constants import *
 from mft_entry import *
 import struct
@@ -64,8 +64,7 @@ class NTFSHandler:
         self.mft_start_sector = VBR_OFFSET + struct.unpack('<Q', data[0x30:0x38])[0] * self.sectors_per_cluster
 
         # Find the last mft sector using the $Mft
-        self.mft_last_sector = self.mft_start_sector
-        self.read_data(MFTEntry(self.get_next_entry(no_iteration=True)), calc_mft_size=True)
+        self.read_data(MFTEntry(self.get_next_entry(no_iteration=True)), index_cluster_runs=True)
 
     def get_next_entry(self, no_iteration=False):
         """
@@ -112,9 +111,11 @@ class NTFSHandler:
 
         return self.mft_entry_size
 
-    def read_data(self, mft_entry, calc_mft_size=False):
+    def read_data(self, mft_entry, index_cluster_runs=False):
         """
         Reads a non-resident $DATA attribute's data from it's run-list
+        :param index_cluster_runs: This parameter will insert into self.runs
+         all of the MFT runs so the program can start iterating over the mft
         :param mft_entry: The MFTEntry object to get the data from
         :return: The non-resident data
         """
@@ -133,7 +134,6 @@ class NTFSHandler:
         run_list_offset = data_attribute[0x20]
         i = run_list_offset
         non_resident_data = b''
-        sum_of_sectors = 0
 
         # Iterate over the run-list
         while i < len(data_attribute):
@@ -150,9 +150,6 @@ class NTFSHandler:
             cluster_count = data_attribute[i+1:i+1+cluster_count_length]
             first_cluster = data_attribute[i+1+cluster_count_length:i+1+cluster_count_length+first_cluster_length]
 
-            sector_count = cluster_count
-            first_sector = first_cluster
-
             # Converting the first_cluster bytes into a number
             first_sector = bytes_to_number(first_cluster)
 
@@ -166,15 +163,13 @@ class NTFSHandler:
             first_sector += VBR_OFFSET
 
             # Reading the data from the disk
-            if not calc_mft_size:
+            if not index_cluster_runs:
                 non_resident_data += self.sector_reader.read_from(first_sector, sector_count)
             else:
                 if i != run_list_offset:
                     self.runs.append((self.runs[-1][0] + first_sector - VBR_OFFSET, sector_count))
                 else:
                     self.runs.append((first_sector, sector_count))
-
-                self.mft_last_sector = first_sector + sector_count
 
             # Jumping to the next cluster run
             i += 1 + cluster_count_length + first_cluster_length
