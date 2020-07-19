@@ -1,8 +1,6 @@
 from attribute_parser import *
 from constants import *
 
-FILE_NAME_TYPE_BYTES = b'\x30\x00\x00\x00'
-
 
 class MFTEntry:
     """

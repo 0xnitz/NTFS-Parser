@@ -1,11 +1,14 @@
 import sys
 import time
+import os
 from ntfs_parser import *
 
 start = time.time()
 
 
 def main():
+    #os.system('wmic partition get StartingOffset, Name, Size')
+
     # Arg check
     if len(sys.argv) != 2:
         print('This program will search for a file in file system and print it\'s contents!\n'

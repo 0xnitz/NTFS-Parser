@@ -3,10 +3,6 @@ from constants import *
 from mft_entry import *
 import struct
 
-SECTOR_SIZE_OFFSET = 0xb
-SECTORS_PER_CLUSTER_OFFSET = 0xd
-MFT_START_SECTOR_OFFSET = 0x30
-
 
 def bytes_to_number(bytes_object):
     """
