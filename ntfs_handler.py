@@ -91,6 +91,7 @@ class NTFSHandler:
         while not current_entry[0x16] or current_entry[:0x4] != b'FILE':
             current_entry, sectors_read = self.sector_reader.read_until(
                 self.mft_start_sector + self.mft_sector_offset, b'FILE')
+            break
 
         self.mft_sector_offset += sectors_read
         self.entry_i += 1
