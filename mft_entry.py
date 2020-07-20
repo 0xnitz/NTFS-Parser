@@ -11,6 +11,10 @@ class MFTEntry:
         self.entry = entry
         self.attribute_parser = AttributeParser()
 
+    # CR: [design] How does it make sense that read_resident_data is a function
+    # of MFTEntry but read_non_resident_data is not? Moreover, wouldn't it make
+    # sense for MFTEntry to expose a read_data() function instead? Why should
+    # client classes care if the data is resident or not?
     def read_resident_data(self):
         """
         Read the data attribute using the MFTParser class
@@ -23,6 +27,9 @@ class MFTEntry:
         # If the $DATA attribute is resident, parse and print it's data
         return self.attribute_parser.parse_data(data_attribute)
 
+    # CR: [design] This is a confusing choice. It is non-intuitive to compare
+    # an entry to a file name. You should use accessors to export the file
+    # name to clients, and then they can compare file names.
     def __eq__(self, filename):
         """
         This function will compare between a filename and the MFT Entry's $FILE_NAME attribute
@@ -46,10 +53,13 @@ class MFTEntry:
         # Extracting the filename text from the attribute, if an exception is thrown ignore it and return False
         try:
             # Extracting the filename from the mft entry
+            # CR: [implementation] Do decoding correctly! (Hint: What is the
+            # encoding of file names in NTFS?)
             extracted_filename = self.attribute_parser.parse_filename(filename_attribute).decode()
 
             # Removing the extra null bytes between each char
             extracted_filename = ''.join(extracted_filename.split('\x00'))
+        # CR: [implementation] Catch specific exceptions
         except:
             return False
 

@@ -5,6 +5,7 @@ import os
 import struct
 
 
+# CR: [finish] This should be in some utils file
 def bytes_to_number(bytes_object):
     """
     This function takes in a bytes object and converts it to a number (1-8 length)
@@ -13,8 +14,11 @@ def bytes_to_number(bytes_object):
     """
 
     bytes_object_length = len(bytes_object)
+    # CR: [implementation] Directly return instead of saving the value in n
     n = 0
 
+    # CR: [design] Throw a ValueError for invalid values
+    # CR: [implementation] This is redundant
     if len(bytes_object) > 8:
         return 0
 
@@ -23,6 +27,7 @@ def bytes_to_number(bytes_object):
     elif bytes_object_length == 2:
         n = struct.unpack('H', bytes_object)[0]
     elif 2 < bytes_object_length <= 4:
+        # CR: [requirements] Are you allowed to assume endianity?
         bytes_object += b'\x00' * (4 - bytes_object_length)
         n = struct.unpack('I', bytes_object)[0]
     elif 4 < bytes_object_length <= 8:
@@ -32,12 +37,26 @@ def bytes_to_number(bytes_object):
     return n
 
 
+# CR: [design] This class immediately raises red flags for me for the following
+# reasons:
+# 1. It has Handler in its name - A generic word that means nothing
+# 2. It seems to deal with multiple entities and in many layers of abstraction.
+# This contradicts the Single Responsibility Principle. Form what I've seen it
+# deals with physical drives, logical partitions, vbrs, mfts, attributes and
+# run lists.
+# 3. It is very big and has many functions which are too long.
 class NTFSHandler:
     """
     This class deals with finding the MFT from the VBR and iterating over the MFT to find new entries to parse.
     """
 
+    # CR: [design] locate_partition and find_mft seem to me like internal
+    # functions that should be called by __init__. Why should the client of
+    # this class have to call them? What happens if he forgets to? Also, set
+    # the attributes in those functions instead of initializing them as 0 which
+    # is plainly wrong.
     def __init__(self):
+        # CR: [finish] No need for trivial docstrings
         """
         A constructor for the NTFSHandler class
         """
@@ -45,10 +64,13 @@ class NTFSHandler:
         self.sectors_per_cluster = 0
         self.mft_entry_size = 0
         self.mft_start_sector = 0
+        # CR: [finish] This property is only set but never used. Remove
         self.entry_i = 0
         self.mft_sector_offset = 0
         self.runs = []
         self.current_run_index = 0
+        # CR: [requirements] Were you required to start from the physical
+        # drive?
         self.sector_reader = SectorReader(r'\\.\physicaldrive0')
 
     def find_mft(self):
@@ -57,6 +79,7 @@ class NTFSHandler:
         :return: the starting sector for the MFT
         """
 
+        # CR: [design] Don't use globals
         global SECTOR_SIZE
 
         data = self.sector_reader.read_sector(VBR_OFFSET)
@@ -69,13 +92,21 @@ class NTFSHandler:
         # Find the last mft sector using the $Mft
         self.read_data(MFTEntry(self.get_next_entry(no_iteration=True)), index_cluster_runs=True)
 
+    # CR: [design] This is a good example for a function that can be broken
+    # down in the following way:
+    # def _largest_partition_vbr_offset(self):
+    #    partitions = self._get_partitions()
+    #    largest_partition = self._get_largest_partition(partitions)
+    #    return self.partition_vbr_offset(largest_partition)
     def locate_partition(self):
         """
         This function locates the largest partition and finds it's starting offset
         """
 
+        # CR: [design] Don't use globals
         global VBR_OFFSET
 
+        # CR: [requirements] Are you allowed to use this?
         partitions = os.popen('wmic partition get StartingOffset, Name, Size').read().split('\n')
         partitions = [i for i in partitions if 'Disk' in i]
 
@@ -91,7 +122,12 @@ class NTFSHandler:
 
         VBR_OFFSET = round(max_size_offset / SECTOR_SIZE)
 
+    # CR: [implementation] The logic of this function seems unnecessarily
+    # complex. Let's talk about it
     def get_next_entry(self, no_iteration=False):
+        # CR: [finish] Don't explain what functions use a feature, only what it
+        # does.
+        # CR: [design] It would be better to eliminate this edge case entirely.
         """
         This function reads the next mft entry and returns it
         :arg no_iteration: This argument is used by the find_mft function to get the $MFT entry
@@ -100,10 +136,12 @@ class NTFSHandler:
         """
 
         # MFT file not yet found
+        # CR: [design] Raise exceptions!
         if self.mft_start_sector == 0:
             return
 
         # Finding the next file entry in the $MFT
+        # CR: [finish] Don't use magic constants, especially ones that repeat
         current_entry, sectors_read = self.sector_reader.read_until(
             self.mft_start_sector + self.mft_sector_offset, b'FILE')
         if no_iteration:
@@ -119,11 +157,14 @@ class NTFSHandler:
 
         self.entry_i += 1
 
+        # CR: [design] Why does a function that deals with entries, should
+        # need to know about runs, which are 2 abstraction levels deeper?
         if self.mft_sector_offset >= self.runs[self.current_run_index][1]:
             self.current_run_index += 1
             self.mft_sector_offset = 0
 
             # Finished reading the MFT
+            # CR: [design] Raise exceptions!
             if self.current_run_index == len(self.runs) and not no_iteration:
                 return READ_ENTIRE_MFT
 
@@ -138,7 +179,11 @@ class NTFSHandler:
 
         return self.mft_entry_size
 
+    # CR: [design] This functions is very long and spans 2-3 missing levels of
+    # abstraction.
     def read_data(self, mft_entry, index_cluster_runs=False):
+        # CR: [finish] This function also handles resident data, so your
+        # docstring is inaccurate
         """
         Reads a non-resident $DATA attribute's data from it's run-list
         :param index_cluster_runs: This parameter will insert into self.runs

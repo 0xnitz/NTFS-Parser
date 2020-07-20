@@ -2,7 +2,14 @@ import struct
 from constants import *
 
 
+# CR: [design] You have so many ways to use this interface incorrectly. For
+# example calling parse_filename on a data attribute. Make your interfaces easy
+# to use correctly and hard to use incorrectly.
 class AttributeParser:
+    # CR: [finish] This comment uses the wrong class name!
+    # CR: [design] If all these functions are independent of class objects then:
+    # 1. Make it illegal to create objects (raise an exception in __init__)
+    # 2. Use the @staticmethod decorator
     """
     These function don't need a class, they can be static functions.
     I chose to put them in the MFTParser class to group functions that parse mft entries together.
@@ -11,6 +18,8 @@ class AttributeParser:
     def __init__(self):
         pass
 
+    # CR: [design] If this is a parsing function, why not return the data in
+    # the most suitable type (string)?
     def parse_filename(self, attribute):
         """
         Extracts the actual filename from the $FILE_NAME attribute
@@ -42,10 +51,13 @@ class AttributeParser:
         """
 
         # If the in-use flag is 0 the entry is un allocated
+        # CR: [design] Raise exceptions in illegal states
         if not mft_entry.entry[ENTRY_INUSE]:
             return UNALLOCATED_ENTRY
 
         # If the directory flag is 1 the entry is a directory, we're looking for a file
+        # CR: [design] Is this the place to make such decisions? What happens
+        # when the requirements specify directories as well?
         if mft_entry.entry[ENTRY_DIRECTORY]:
             return DIRECTORY
 

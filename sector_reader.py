@@ -1,17 +1,27 @@
 from constants import *
 
 
+# CR: [finish] If this can read arbitrary sizes than it's not a SectorReader.
+# It is probably a VolumeReader or a DiskReader.
 class SectorReader:
     """
     This class deals with input from the physical disks.
     It can read sectors from the disk itself.
     """
 
+    # CR: [finish] What kind of entity is disk? I would first think it is a
+    # Disk object or something. In a duck typed language such as python I
+    # recommend using more explicit names such as disk_path
     def __init__(self, disk):
+        # CR: [implementation] You don't use self.disk anywhere outside
+        # __init__, so you can avoid setting it as a property
         self.disk = disk
         self.file = open(self.disk, 'rb')
+        # CR: [finish] This name doesn't reflect the data well. What do the
+        # values represent?
         self.current_chunk = 0, 0
 
+    # CR: [finish] Rename to length_in_sectors
     def read_from(self, sector_start, length=1):
         """
         This function reads length sectors from sector_start
@@ -24,6 +34,7 @@ class SectorReader:
 
         return self.file.read(SECTOR_SIZE * length)
 
+    # CR: [design] Avoid code duplication by using self.read_from()
     def read_sector(self, sector):
         """
         Reads a single sector
@@ -34,6 +45,8 @@ class SectorReader:
         self.file.seek(sector * SECTOR_SIZE)
         return self.file.read(SECTOR_SIZE)
 
+    # CR: [design] Let's talk about these functions. I had a hard time
+    # understanding them.
     def read_until(self, sector_start, byte_string):
         """
         Read sectors until a byte-string is found. The functions reads from the disk in chunks to minimize runtime.
