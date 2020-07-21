@@ -21,4 +21,4 @@ class NTFSParser:
                     except NTFSException:
                         continue
         except ReadEntireMFTException:
-            raise FileNotFoundException
+            raise FileNotFoundException 
