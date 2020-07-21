@@ -1,5 +1,6 @@
 from ntfs_exception import NTFSException, ReadEntireMFTException, FileNotFoundException
 from ntfs_handler import NTFSHandler
+from constants import VBR_OFFSET
 from mft_entry import MFTEntry
 
 
@@ -50,7 +51,7 @@ class NTFSParser:
                 current_entry = MFTEntry(self.handler.get_next_entry())
 
                 if current_entry.get_filename() == filename:
-                    return self.handler.read_data(current_entry)
+                    return current_entry.get_data(self.handler.sectors_per_cluster, 1161216)
             except ReadEntireMFTException:
                 break
             except NTFSException:

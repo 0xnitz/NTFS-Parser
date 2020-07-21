@@ -1,6 +1,8 @@
 from constants import DATA_TYPE, FILE_NAME_TYPE, FILE_NAME_TYPE_BYTES
+from file_name_attribute import FileNameAttribute
 from attribute_parser import AttributeParser
 from ntfs_exception import NTFSException
+from data_attribute import DataAttribute
 
 
 class MFTEntry:
@@ -27,6 +29,10 @@ class MFTEntry:
         # If the $DATA attribute is resident, parse and print it's data
         return AttributeParser.parse_data(data_attribute)
 
+    def get_data(self, sectors_per_cluster, vbr_offset):
+        return DataAttribute(AttributeParser.get_attribute(DATA_TYPE, self),
+                             sectors_per_cluster, vbr_offset).get_data()
+
     # CR: [design] This is a confusing choice. It is non-intuitive to compare
     # an entry to a file name. You should use accessors to export the file
     # name to clients, and then they can compare file names.
@@ -41,11 +47,7 @@ class MFTEntry:
         if not self.is_valid():
             raise NTFSException
 
-        # Cutting the $FILE_NAME attribute from the entry
-        filename_attribute = AttributeParser.get_attribute(FILE_NAME_TYPE, self)
-
-        # Extracting the filename from the mft entry
-        return AttributeParser.parse_filename(filename_attribute).decode('utf-16le')
+        return FileNameAttribute(AttributeParser.get_attribute(FILE_NAME_TYPE, self)).get_data()
 
     def is_valid(self):
         """
