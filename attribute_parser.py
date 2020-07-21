@@ -1,6 +1,8 @@
-import struct
-from constants import *
+from constants import FILE_NAME_LENGTH, FILE_NAME_DATA, DATA_LENGTH, DATA_ATTRIBUTE_DATA, ENTRY_INUSE,\
+    FIRST_ATTRIBUTE_OFFSET, END_OF_ENTRY, IS_NON_RESIDENT_ATTRIBUTE
 from ntfs_exception import AttributeNotFoundException, NTFSException
+
+from struct import unpack
 
 
 # CR: [design] You have so many ways to use this interface incorrectly. For
@@ -42,7 +44,7 @@ class AttributeParser:
         """
 
         # Extracting the data from the resident $DATA attribute
-        length = struct.unpack('I', attribute[DATA_LENGTH:DATA_LENGTH+4])[0]
+        length = unpack('I', attribute[DATA_LENGTH:DATA_LENGTH+4])[0]
         return attribute[DATA_ATTRIBUTE_DATA:DATA_ATTRIBUTE_DATA+length]
 
     @staticmethod
@@ -64,11 +66,11 @@ class AttributeParser:
         # when the requirements specify directories as well?
 
         # Unpack the offset of the first attribute from the start of the entry
-        offset = struct.unpack('H', mft_entry.entry[FIRST_ATTRIBUTE_OFFSET:FIRST_ATTRIBUTE_OFFSET+2])[0]
+        offset = unpack('H', mft_entry.entry[FIRST_ATTRIBUTE_OFFSET:FIRST_ATTRIBUTE_OFFSET+2])[0]
         while offset < len(mft_entry.entry):
             # Unpack the current attribute length and attribute type
-            attribute_len = struct.unpack('I', mft_entry.entry[offset+4:offset+8])[0]
-            current_attribute_code = struct.unpack('I', mft_entry.entry[offset:offset+4])[0]
+            attribute_len = unpack('I', mft_entry.entry[offset+4:offset+8])[0]
+            current_attribute_code = unpack('I', mft_entry.entry[offset:offset+4])[0]
 
             # Attribute isn't the one we're looking for
             if current_attribute_code != attribute_code:

@@ -1,14 +1,12 @@
-# CR: [conventions] Import only what you need (from ... import ...)
-import sys
-import time
-# CR: [conventions] Don't use star imports
-# CR: [conventions] Seperate your imports from external imports with a new line
-from ntfs_parser import *
+from time import time
+from sys import argv
+
 from ntfs_exception import FileNotFoundException
+from ntfs_parser import NTFSParser
 
 # CR: [design] This should be part of a function. I would also measure time
 # only if requested.
-start = time.time()
+start = time()
 
 # CR: [bug] The program crashes every time I run it
 
@@ -28,13 +26,13 @@ def main():
     # CR: [implementation] Use argparse for argument parsing. Put the arg
     # parsing outside main. This will allow others to call main and pass in
     # arguments.
-    if len(sys.argv) != 2:
+    if len(argv) != 2:
         # CR: [finish] Recommending f-strings
         print('This program will search for a file in file system and print it\'s contents!\n'
-              'Usage: {0} filename_to_search'.format(sys.argv[0]))
+              'Usage: {0} filename_to_search'.format(argv[0]))
         exit(1)
 
-    filename = sys.argv[1]
+    filename = argv[1]
 
     # Creating the parser and locating the MFT
     parser = NTFSParser()
@@ -54,7 +52,7 @@ def main():
         print('[] {0} file not found!'.format(filename), end='\n\n')
 
     # Print the parser's runtime
-    print('[] Parser finished execution, runtime -> {0}s...'.format(time.time() - start))
+    print('[] Parser finished execution, runtime -> {0}s...'.format(time() - start))
 
 
 if __name__ == "__main__":

@@ -1,11 +1,6 @@
-# CR: [conventions] Order imports by length
-from attribute_parser import AttributeParser
-from mft_entry import MFTEntry
-# CR: [conventions] Don't use star imports
-from ntfs_handler import *
-from sector_reader import SectorReader
-from constants import *
 from ntfs_exception import NTFSException, ReadEntireMFTException, FileNotFoundException
+from ntfs_handler import NTFSHandler
+from mft_entry import MFTEntry
 
 
 class NTFSParser:

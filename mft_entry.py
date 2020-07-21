@@ -1,5 +1,5 @@
-from attribute_parser import *
-from constants import DATA_TYPE, FILE_NAME_TYPE, UNALLOCATED_ENTRY, NO_SUCH_ATTRIBUTE, FILE_NAME_TYPE_BYTES
+from constants import DATA_TYPE, FILE_NAME_TYPE, FILE_NAME_TYPE_BYTES
+from attribute_parser import AttributeParser
 from ntfs_exception import NTFSException
 
 

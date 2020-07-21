@@ -1,4 +1,4 @@
-from constants import *
+from constants import SECTOR_SIZE, CHUNK_SIZE
 
 
 # CR: [finish] If this can read arbitrary sizes than it's not a SectorReader.

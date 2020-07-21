@@ -1,41 +1,13 @@
-from sector_reader import *
-from constants import *
-from mft_entry import *
+from struct import unpack
+from os import popen
+
+from constants import SECTOR_SIZE, SECTORS_PER_CLUSTER_OFFSET, SECTOR_SIZE_OFFSET,\
+    MFT_START_SECTOR_OFFSET, ENTRY_INUSE, DATA_TYPE, RUN_LIST_OFFSET
 from ntfs_exception import ReadEntireMFTException
-import os
-import struct
-
-
-# CR: [finish] This should be in some utils file
-def bytes_to_number(bytes_object):
-    """
-    This function takes in a bytes object and converts it to a number (1-8 length)
-    :param bytes_object: The bytes object to convert
-    :return: The result
-    """
-
-    bytes_object_length = len(bytes_object)
-    # CR: [implementation] Directly return instead of saving the value in n
-    n = 0
-
-    # CR: [design] Throw a ValueError for invalid values
-    # CR: [implementation] This is redundant
-    if len(bytes_object) > 8:
-        return 0
-
-    if bytes_object_length == 1:
-        n = bytes_object[0]
-    elif bytes_object_length == 2:
-        n = struct.unpack('H', bytes_object)[0]
-    elif 2 < bytes_object_length <= 4:
-        # CR: [requirements] Are you allowed to assume endianity?
-        bytes_object += b'\x00' * (4 - bytes_object_length)
-        n = struct.unpack('I', bytes_object)[0]
-    elif 4 < bytes_object_length <= 8:
-        bytes_object += b'\x00' * (8 - bytes_object_length)
-        n = struct.unpack('Q', bytes_object)[0]
-
-    return n
+from attribute_parser import AttributeParser
+from sector_reader import SectorReader
+from utils import bytes_to_number
+from mft_entry import MFTEntry
 
 
 # CR: [design] This class immediately raises red flags for me for the following
@@ -88,9 +60,9 @@ class NTFSHandler:
         global SECTOR_SIZE
 
         data = self.sector_reader.read_sector(VBR_OFFSET)
-        SECTOR_SIZE = struct.unpack('H', data[SECTOR_SIZE_OFFSET:SECTOR_SIZE_OFFSET + 2])[0]
+        SECTOR_SIZE = unpack('H', data[SECTOR_SIZE_OFFSET:SECTOR_SIZE_OFFSET + 2])[0]
         self.sectors_per_cluster = data[SECTORS_PER_CLUSTER_OFFSET]
-        self.mft_start_sector = VBR_OFFSET + struct.unpack('<Q',
+        self.mft_start_sector = VBR_OFFSET + unpack('<Q',
                                                             data[MFT_START_SECTOR_OFFSET:MFT_START_SECTOR_OFFSET+8])[0]\
                                                             * self.sectors_per_cluster
 
@@ -113,7 +85,7 @@ class NTFSHandler:
         global VBR_OFFSET
 
         # CR: [requirements] Are you allowed to use this?
-        partitions = os.popen('wmic partition get StartingOffset, Name, Size').read().split('\n')
+        partitions = popen('wmic partition get StartingOffset, Name, Size').read().split('\n')
         partitions = [i for i in partitions if 'Disk' in i]
 
         max_size = 0
