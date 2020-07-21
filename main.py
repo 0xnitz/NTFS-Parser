@@ -35,10 +35,10 @@ def main():
     filename = argv[1]
 
     # Creating the parser and locating the MFT
-    parser = NTFSParser()
     # CR: [implementation] Suggesting to use logging utilities for all prints
     # that are not strictly required.
     print('[] Searching for file {0}...'.format(filename))
+    parser = NTFSParser()
 
     try:
         # Starting the scan over the MFT

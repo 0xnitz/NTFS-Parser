@@ -1,7 +1,5 @@
 from ntfs_exception import NTFSException, ReadEntireMFTException, FileNotFoundException
-from ntfs_handler import NTFSHandler
-from constants import VBR_OFFSET
-from mft_entry import MFTEntry
+from mft_iterator import MFTIterator
 
 
 class NTFSParser:
@@ -16,7 +14,8 @@ class NTFSParser:
     """
 
     def __init__(self):
-        self.handler = NTFSHandler()
+        self.mft_iterator = MFTIterator()
+
 
     # CR: [finish] This function doesn't return a file, but its content. The
     # name should reflect that.
@@ -45,20 +44,15 @@ class NTFSParser:
         # 4. The stop condition should also be more explicit, and can be better
         # done by implementing NTFSHandler.has_next(), or simply by making it
         # iterable (using __iter__ and __next__).
-        while True:
-            # Using the __eq__ operator of MFTEntry to check if the entry has the correct filename
-            try:
-                current_entry = MFTEntry(self.handler.get_next_entry())
-
-                if current_entry.get_filename() == filename:
-                    return current_entry.get_data(self.handler.sectors_per_cluster, 1161216)
-            except ReadEntireMFTException:
-                break
-            except NTFSException:
-                continue
-
-        # After iterating after the whole MFT, file not found
-        # CR: [design] Use exceptions! What if a file's content is equal to
-        # failure? If you are returning a bytes object the only legit way to
-        # signal a failure is by raising.
-        raise FileNotFoundException
+        try:
+            for entry in self.mft_iterator:
+                if entry.is_valid():
+                    try:
+                        if entry.get_filename() == filename:
+                            return entry.get_data(
+                                self.mft_iterator.loader.drive.locate_largest_partition_sectors_per_cluster(),
+                                self.mft_iterator.loader.drive.locate_largest_partition_vbr_offset())
+                    except NTFSException:
+                        continue
+        except ReadEntireMFTException:
+            raise FileNotFoundException

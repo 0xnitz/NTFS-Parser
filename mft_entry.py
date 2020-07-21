@@ -1,4 +1,4 @@
-from constants import DATA_TYPE, FILE_NAME_TYPE, FILE_NAME_TYPE_BYTES
+from constants import DATA_TYPE, FILE_NAME_TYPE, FILE_NAME_TYPE_BYTES, MFT_ENTRY_MAGIC, ENTRY_INUSE
 from file_name_attribute import FileNameAttribute
 from attribute_parser import AttributeParser
 from ntfs_exception import NTFSException
@@ -58,5 +58,6 @@ class MFTEntry:
         """
 
         # Checking if the entry has the signature and a $FILE_NAME attribute
-        return b'FILE' == self.entry[:0x4] and FILE_NAME_TYPE_BYTES in self.entry
+        return MFT_ENTRY_MAGIC == self.entry[:0x4] and \
+               FILE_NAME_TYPE_BYTES in self.entry and self.entry[ENTRY_INUSE]
 
