@@ -1,5 +1,4 @@
 from ntfs_exception import AttributeNotFoundException, NTFSException
-from attribute import ATTRIBUTE_NON_RESIDENT_FLAG_OFFSET
 
 from struct import unpack
 
@@ -32,7 +31,3 @@ class AttributeParser:
             return mft_entry.entry[offset:offset+attribute_len]
 
         raise AttributeNotFoundException
-
-    @staticmethod
-    def is_resident(attribute):
-        return not attribute[ATTRIBUTE_NON_RESIDENT_FLAG_OFFSET]

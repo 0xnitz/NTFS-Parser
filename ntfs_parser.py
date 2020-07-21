@@ -11,7 +11,7 @@ class NTFSParser:
 
     def get_file_contents(self, filename):
         try:
-            for i, entry in enumerate(self.mft_iterator):
+            for entry in self.mft_iterator:
                 if entry.is_valid():
                     try:
                         if entry.get_filename() == filename:

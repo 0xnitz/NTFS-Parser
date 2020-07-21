@@ -1,7 +1,7 @@
 from attribute_parser import AttributeParser, ENTRY_INUSE_FLAG_OFFSET
 from file_name_attribute import FileNameAttribute
-from ntfs_exception import NTFSException
 from data_attribute import DataAttribute
+from ntfs_exception import NTFSException
 
 FILE_NAME_TYPE = 0x30
 DATA_TYPE = 0x80

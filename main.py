@@ -6,18 +6,6 @@ from ntfs_parser import NTFSParser
 
 
 def main(args):
-    timer, verbose = False, False
-
-    filename = args['file']
-
-    if args['time'] is not None:
-        timer = True
-        start = time()
-
-    if args['verbose'] is not None:
-        verbose = True
-        print(f'[] Searching for file {filename}...')
-
     try:
         ntfs_parser = NTFSParser()
         ret_val = ntfs_parser.get_file_contents(filename)
@@ -44,4 +32,16 @@ if __name__ == "__main__":
     parser.add_argument('-v', '--verbose', help='Adding some prints', required=False)
 
     arguments = vars(parser.parse_args())
+
+    timer, verbose = False, False
+    filename = arguments['file']
+
+    if arguments['time'] is not None:
+        timer = True
+        start = time()
+
+    if arguments['verbose'] is not None:
+        verbose = True
+        print(f'[] Searching for file {filename}...')
+
     main(arguments)
