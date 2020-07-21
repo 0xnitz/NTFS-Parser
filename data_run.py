@@ -12,7 +12,7 @@ class DataRun:
 
     def read_run(self):
         return self.sector_reader.read_from(
-            self.starting_cluster * self.sectors_per_cluster + self.vbr_offset, self.cluster_length)
+            self.starting_cluster * self.sectors_per_cluster + self.vbr_offset, self.cluster_length * self.sectors_per_cluster)
 
     def sector_in_run(self, sector):
         return self.starting_cluster * self.sectors_per_cluster <= sector <\

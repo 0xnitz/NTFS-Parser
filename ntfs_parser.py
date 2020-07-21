@@ -16,7 +16,6 @@ class NTFSParser:
     def __init__(self):
         self.mft_iterator = MFTIterator()
 
-
     # CR: [finish] This function doesn't return a file, but its content. The
     # name should reflect that.
     # CR: [design] Or... split the functionality of finding a file from
@@ -45,9 +44,10 @@ class NTFSParser:
         # done by implementing NTFSHandler.has_next(), or simply by making it
         # iterable (using __iter__ and __next__).
         try:
-            for entry in self.mft_iterator:
+            for i, entry in enumerate(self.mft_iterator):
                 if entry.is_valid():
                     try:
+                        current_filename = entry.get_filename()
                         if entry.get_filename() == filename:
                             return entry.get_data(
                                 self.mft_iterator.loader.drive.locate_largest_partition_sectors_per_cluster(),
@@ -55,4 +55,5 @@ class NTFSParser:
                     except NTFSException:
                         continue
         except ReadEntireMFTException:
+            print(len(self.mft_iterator.loader.mft))
             raise FileNotFoundException
