@@ -10,7 +10,6 @@ class RunList:
         prev_run = 0
         i = 0
 
-        # Iterate over the run-list
         while i < len(run_list_bytes):
             current_run = DataRun(vbr_offset)
 
@@ -18,12 +17,9 @@ class RunList:
             if size == 0:
                 break
 
-            # The size is one byte,
-            # and it's nibbles represent the amount of bytes the first_cluster and the cluster_length will take
             cluster_count_length = size & 0xf
             first_cluster_length = size >> 4
 
-            # Extracting the cluster_count and first_cluster
             cluster_count = run_list_bytes[i + 1:i + 1 + cluster_count_length]
             first_cluster = run_list_bytes[
                             i + 1 + cluster_count_length:i + 1 + cluster_count_length + first_cluster_length]
@@ -35,7 +31,6 @@ class RunList:
             if prev_run != 0:
                 current_run.starting_cluster += prev_run.starting_cluster
 
-            # Jumping to the next cluster run
             i += 1 + cluster_count_length + first_cluster_length
 
             self.runs.append(current_run)

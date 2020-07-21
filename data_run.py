@@ -1,5 +1,4 @@
 from sector_reader import SectorReader
-from constants import VBR_OFFSET
 
 
 class DataRun:
@@ -12,7 +11,8 @@ class DataRun:
 
     def read_run(self):
         return self.sector_reader.read_from(
-            self.starting_cluster * self.sectors_per_cluster + self.vbr_offset, self.cluster_length * self.sectors_per_cluster)
+            self.starting_cluster * self.sectors_per_cluster + self.vbr_offset,
+            self.cluster_length * self.sectors_per_cluster)
 
     def sector_in_run(self, sector):
         return self.starting_cluster * self.sectors_per_cluster <= sector <\

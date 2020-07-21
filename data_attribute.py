@@ -1,5 +1,4 @@
 from constants import DATA_LENGTH, DATA_ATTRIBUTE_DATA, RUN_LIST_OFFSET
-from ntfs_exception import NTFSException
 from attribute import Attribute
 from run_list import RunList
 
