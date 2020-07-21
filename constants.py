@@ -17,6 +17,7 @@ READ_ENTIRE_MFT = b'\xff'
 FILE_NAME_TYPE = 0x30
 DATA_TYPE = 0x80
 SECTOR_SIZE = 512
+MFT_ENTRY_SIZE = 1024
 VBR_OFFSET = 0
 # CR: [implementation] Wouldn't it make way more sense to work with powers of
 # 2?
@@ -36,3 +37,4 @@ SECTOR_SIZE_OFFSET = 0xb
 SECTORS_PER_CLUSTER_OFFSET = 0xd
 MFT_START_SECTOR_OFFSET = 0x30
 FILE_NAME_TYPE_BYTES = b'\x30\x00\x00\x00'
+OEM_ID = b'NTFS'

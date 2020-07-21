@@ -36,7 +36,6 @@ class NTFSHandler:
         """
 
         self.sectors_per_cluster = 0
-        self.mft_entry_size = 0
         self.mft_start_sector = 0
         # CR: [finish] This property is only set but never used. Remove
         self.entry_i = 0
