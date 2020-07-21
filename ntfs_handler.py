@@ -8,6 +8,7 @@ from attribute_parser import AttributeParser
 from sector_reader import SectorReader
 from utils import bytes_to_number
 from mft_entry import MFTEntry
+from run_list import RunList
 
 
 # CR: [design] This class immediately raises red flags for me for the following
@@ -40,7 +41,6 @@ class NTFSHandler:
         # CR: [finish] This property is only set but never used. Remove
         self.entry_i = 0
         self.mft_sector_offset = 0
-        self.runs = []
         self.current_run_index = 0
         # CR: [requirements] Were you required to start from the physical
         # drive?
@@ -137,16 +137,17 @@ class NTFSHandler:
 
         # CR: [design] Why does a function that deals with entries, should
         # need to know about runs, which are 2 abstraction levels deeper?
-        if self.mft_sector_offset >= self.runs[self.current_run_index][1]:
+        if not self.mft_run_list.sector_in_run(self.mft_sector_offset + self.mft_start_sector - VBR_OFFSET):
             self.current_run_index += 1
             self.mft_sector_offset = 0
 
             # Finished reading the MFT
             # CR: [design] Raise exceptions!
-            if self.current_run_index == len(self.runs) and not no_iteration:
+            if self.current_run_index == len(self.mft_run_list.runs) and not no_iteration:
                 raise ReadEntireMFTException
 
-            self.mft_start_sector = self.runs[self.current_run_index][0]
+            self.mft_start_sector = self.mft_run_list.runs[self.current_run_index]\
+                                        .starting_cluster * self.sectors_per_cluster
 
         return current_entry
 
@@ -178,47 +179,10 @@ class NTFSHandler:
             return mft_entry.read_resident_data()
 
         run_list_offset = data_attribute[RUN_LIST_OFFSET]
-        i = run_list_offset
-        non_resident_data = b''
 
-        # Iterate over the run-list
-        while i < len(data_attribute):
-            size = data_attribute[i]
-            if size == 0:
-                return non_resident_data
+        if index_cluster_runs:
+            self.mft_run_list = RunList(data_attribute[run_list_offset:], self.sectors_per_cluster, VBR_OFFSET)
+            return b''
 
-            # The size is one byte,
-            # and it's nibbles represent the amount of bytes the first_cluster and the cluster_length will take
-            cluster_count_length = size & 0xf
-            first_cluster_length = size >> 4
-
-            # Extracting the cluster_count and first_cluster
-            cluster_count = data_attribute[i + 1:i + 1 + cluster_count_length]
-            first_cluster = data_attribute[
-                            i + 1 + cluster_count_length:i + 1 + cluster_count_length + first_cluster_length]
-
-            # Converting the first_cluster bytes into a number
-            first_sector = bytes_to_number(first_cluster)
-
-            # Converting the cluster_count bytes into a number
-            sector_count = bytes_to_number(cluster_count)
-
-            # Converting between cluster and sectors
-            first_sector *= self.sectors_per_cluster
-            sector_count *= self.sectors_per_cluster
-
-            first_sector += VBR_OFFSET
-
-            # Reading the data from the disk
-            if not index_cluster_runs:
-                non_resident_data += self.sector_reader.read_from(first_sector, sector_count)
-            else:
-                if i != run_list_offset:
-                    self.runs.append((self.runs[-1][0] + first_sector - VBR_OFFSET, sector_count))
-                else:
-                    self.runs.append((first_sector, sector_count))
-
-            # Jumping to the next cluster run
-            i += 1 + cluster_count_length + first_cluster_length
-
-        return non_resident_data
+        current_run_list = RunList(data_attribute[run_list_offset:], self.sectors_per_cluster, VBR_OFFSET)
+        return current_run_list.read_all_runs()
