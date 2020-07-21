@@ -1,6 +1,9 @@
-from constants import DATA_LENGTH, DATA_ATTRIBUTE_DATA, RUN_LIST_OFFSET
 from attribute import Attribute
 from run_list import RunList
+
+DATA_LENGTH = 0x10
+DATA_ATTRIBUTE_DATA = 0x18
+RUN_LIST_OFFSET = 0x20
 
 
 class DataAttribute(Attribute):

@@ -1,8 +1,13 @@
-from constants import DATA_TYPE, FILE_NAME_TYPE, FILE_NAME_TYPE_BYTES, MFT_ENTRY_MAGIC, ENTRY_INUSE
+from attribute_parser import AttributeParser, ENTRY_INUSE
 from file_name_attribute import FileNameAttribute
-from attribute_parser import AttributeParser
 from ntfs_exception import NTFSException
 from data_attribute import DataAttribute
+
+FILE_NAME_TYPE = 0x30
+DATA_TYPE = 0x80
+FILE_NAME_TYPE_BYTES = b'\x30\x00\x00\x00'
+MFT_ENTRY_MAGIC = b'FILE'
+MFT_ENTRY_SIZE = 1024
 
 
 class MFTEntry:

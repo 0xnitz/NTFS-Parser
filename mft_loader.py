@@ -1,15 +1,14 @@
-from constants import MFT_ENTRY_SIZE, SECTOR_SIZE, DATA_TYPE
+from mft_entry import MFTEntry, DATA_TYPE, MFT_ENTRY_SIZE
+from sector_reader import SectorReader, SECTOR_SIZE
 from attribute_parser import AttributeParser
 from physical_drive import PhysicalDrive
-from sector_reader import SectorReader
-from mft_entry import MFTEntry
 from data_attribute import DataAttribute
 
 
 class MFTLoader:
     def __init__(self):
         self.drive = PhysicalDrive(0)
-        self.sector_reader = SectorReader(r'\\.\physicaldrive0')
+        self.sector_reader = SectorReader(r'\\.\physicaldrive' + str(0))
         self.mft = self._load_mft()
 
     def _load_mft(self):

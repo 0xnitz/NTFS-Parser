@@ -1,6 +1,8 @@
-from constants import FILE_NAME_LENGTH, FILE_NAME_DATA
 from ntfs_exception import NTFSException
 from attribute import Attribute
+
+FILE_NAME_LENGTH = 0x58
+FILE_NAME_DATA = 0x5a
 
 
 class FileNameAttribute(Attribute):

@@ -1,7 +1,11 @@
-from constants import ENTRY_INUSE, FIRST_ATTRIBUTE_OFFSET, END_OF_ENTRY, IS_NON_RESIDENT_ATTRIBUTE
 from ntfs_exception import AttributeNotFoundException, NTFSException
+from attribute import IS_NON_RESIDENT_ATTRIBUTE
 
 from struct import unpack
+
+FIRST_ATTRIBUTE_OFFSET = 0x14
+END_OF_ENTRY = 0xffffffff
+ENTRY_INUSE = 0x16
 
 
 class AttributeParser:

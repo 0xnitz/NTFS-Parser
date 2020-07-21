@@ -1,4 +1,4 @@
-from constants import IS_NON_RESIDENT_ATTRIBUTE
+IS_NON_RESIDENT_ATTRIBUTE = 0x8
 
 
 class Attribute:

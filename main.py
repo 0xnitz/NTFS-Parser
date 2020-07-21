@@ -20,7 +20,7 @@ def main(args):
 
     try:
         ntfs_parser = NTFSParser()
-        ret_val = ntfs_parser.find_file(filename)
+        ret_val = ntfs_parser.get_file_contents(filename)
 
         if verbose:
             print(f'[] Found it!\n{filename}\'s contents:\n')
@@ -39,8 +39,6 @@ if __name__ == "__main__":
                                         'and the program will print it\'s contents!')
 
     parser.add_argument('-f', '--file', help='The filename you want the parser to find', required=True)
-    parser.add_argument('-d', '--disk', help='The disk you want the parser to search in.'
-                                             ' Example: --disk=c', required=True)
 
     parser.add_argument('-t', '--time', help='Add runtime measurement', required=False)
     parser.add_argument('-v', '--verbose', help='Adding some prints', required=False)

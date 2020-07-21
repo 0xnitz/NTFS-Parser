@@ -1,9 +1,9 @@
+from partition import Partition, OEM_ID
+
 from operator import attrgetter
 from typing import List
 from os import popen
-
-from partition import Partition
-from constants import OEM_ID
+from re import match
 
 
 class PhysicalDrive:
@@ -27,16 +27,15 @@ class PhysicalDrive:
         return max(self.partitions, key=attrgetter('size'))
 
     def _get_partitions(self):
-        partitions = popen('wmic partition get StartingOffset, Name').read().split('\n')
-        partitions = [i.split() for i in partitions if 'Disk' in i]
+        partitions = popen('wmic partition get StartingOffset, DiskIndex').read().split('\n')
+        partitions = [i.split() for i in partitions if match(r'.*\d+.*', i)]
 
         for partition in partitions:
-            if str(self.drive_number) not in partition[1]:
+            if str(self.drive_number) != partition[0]:
                 continue
 
-            starting_offset = int(partition[4])
-            name = partition[1]
-            current_partition = Partition(name, starting_offset)
+            starting_offset = int(partition[1])
+            current_partition = Partition(starting_offset, self.drive_number)
 
             if OEM_ID in current_partition.get_oem_id():
                 self.partitions.append(current_partition)

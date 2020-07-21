@@ -4,9 +4,12 @@ from mft_iterator import MFTIterator
 
 class NTFSParser:
     def __init__(self):
-        self.mft_iterator = MFTIterator()
+        try:
+            self.mft_iterator = MFTIterator()
+        except NTFSException:
+            raise FileNotFoundException
 
-    def find_file(self, filename):
+    def get_file_contents(self, filename):
         try:
             for i, entry in enumerate(self.mft_iterator):
                 if entry.is_valid():

@@ -1,11 +1,16 @@
-from constants import SECTOR_SIZE, MFT_ENTRY_MAGIC
-from ntfs_exception import ReadEntireMFTException
+from ntfs_exception import NTFSException, ReadEntireMFTException
+from mft_entry import MFTEntry, MFT_ENTRY_MAGIC
+from sector_reader import SECTOR_SIZE
 from mft_loader import MFTLoader
-from mft_entry import MFTEntry
+
+from sys import byteorder
 
 
 class MFTIterator:
     def __init__(self):
+        if byteorder != 'little':
+            raise NTFSException
+
         self.loader = MFTLoader()
         self.mft_offset = 0
 
