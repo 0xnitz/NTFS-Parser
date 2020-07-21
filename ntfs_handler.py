@@ -1,6 +1,7 @@
 from sector_reader import *
 from constants import *
 from mft_entry import *
+from ntfs_exception import ReadEntireMFTException
 import os
 import struct
 
@@ -73,6 +74,10 @@ class NTFSHandler:
         # drive?
         self.sector_reader = SectorReader(r'\\.\physicaldrive0')
 
+        NTFSHandler.locate_partition()
+
+        self.find_mft()
+
     def find_mft(self):
         """
         This function reads the boot sector of the file system and locates the start of the MFT
@@ -98,7 +103,8 @@ class NTFSHandler:
     #    partitions = self._get_partitions()
     #    largest_partition = self._get_largest_partition(partitions)
     #    return self.partition_vbr_offset(largest_partition)
-    def locate_partition(self):
+    @staticmethod
+    def locate_partition():
         """
         This function locates the largest partition and finds it's starting offset
         """
@@ -166,7 +172,7 @@ class NTFSHandler:
             # Finished reading the MFT
             # CR: [design] Raise exceptions!
             if self.current_run_index == len(self.runs) and not no_iteration:
-                return READ_ENTIRE_MFT
+                raise ReadEntireMFTException
 
             self.mft_start_sector = self.runs[self.current_run_index][0]
 
@@ -193,14 +199,10 @@ class NTFSHandler:
         """
 
         # Cut the $DATA attribute from the entry
-        data_attribute = mft_entry.attribute_parser.get_attribute(DATA_TYPE, mft_entry)
-
-        # $DATA attribute not found
-        if data_attribute == NO_SUCH_ATTRIBUTE:
-            return b''
+        data_attribute = AttributeParser.get_attribute(DATA_TYPE, mft_entry)
 
         # Resident $DATA, call read_resident_data to parse and retrieve it
-        if mft_entry.attribute_parser.is_resident(data_attribute):
+        if AttributeParser.is_resident(data_attribute):
             return mft_entry.read_resident_data()
 
         run_list_offset = data_attribute[RUN_LIST_OFFSET]

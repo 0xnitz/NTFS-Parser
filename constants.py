@@ -12,7 +12,6 @@ constants are relevant to multiple classes.
 # entities.
 UNALLOCATED_ENTRY = b'\x01'
 NO_SUCH_ATTRIBUTE = b'\x02'
-DIRECTORY = b'\x03'
 FAILURE = b'\x01'
 READ_ENTIRE_MFT = b'\xff'
 FILE_NAME_TYPE = 0x30

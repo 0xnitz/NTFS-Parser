@@ -5,6 +5,7 @@ from mft_entry import MFTEntry
 from ntfs_handler import *
 from sector_reader import SectorReader
 from constants import *
+from ntfs_exception import NTFSException, ReadEntireMFTException, FileNotFoundException
 
 
 class NTFSParser:
@@ -19,15 +20,7 @@ class NTFSParser:
     """
 
     def __init__(self):
-        # CR: [finish] This is unused, remove
-        self.mft_parser = AttributeParser()
         self.handler = NTFSHandler()
-
-        # Locating the largest partition on the disk (C:) and setting VBR_OFFSET to the vbr of C:
-        self.handler.locate_partition()
-
-        # Finding the MFT sector offset using the VBR
-        self.handler.find_mft()
 
     # CR: [finish] This function doesn't return a file, but its content. The
     # name should reflect that.
@@ -46,7 +39,7 @@ class NTFSParser:
         """
 
         # Iterating over the MFT and searching for the filename
-        current_entry = MFTEntry(self.handler.get_next_entry())
+
         # CR: [design] These lines are filled with strange interface choices:
         # 1. MFTEntry should implement __len__ itself to encapsulate its
         # members.
@@ -56,17 +49,20 @@ class NTFSParser:
         # 4. The stop condition should also be more explicit, and can be better
         # done by implementing NTFSHandler.has_next(), or simply by making it
         # iterable (using __iter__ and __next__).
-        while len(current_entry.entry) > 0:
+        while True:
             # Using the __eq__ operator of MFTEntry to check if the entry has the correct filename
-            if current_entry == filename:
-                return self.handler.read_data(current_entry)
-            current_entry.entry = self.handler.get_next_entry()
+            try:
+                current_entry = MFTEntry(self.handler.get_next_entry())
 
-            if current_entry.entry == READ_ENTIRE_MFT:
+                if current_entry.get_filename() == filename:
+                    return self.handler.read_data(current_entry)
+            except ReadEntireMFTException:
                 break
+            except NTFSException:
+                continue
 
         # After iterating after the whole MFT, file not found
         # CR: [design] Use exceptions! What if a file's content is equal to
         # failure? If you are returning a bytes object the only legit way to
         # signal a failure is by raising.
-        return FAILURE
+        raise FileNotFoundException

@@ -4,6 +4,7 @@ import time
 # CR: [conventions] Don't use star imports
 # CR: [conventions] Seperate your imports from external imports with a new line
 from ntfs_parser import *
+from ntfs_exception import FileNotFoundException
 
 # CR: [design] This should be part of a function. I would also measure time
 # only if requested.
@@ -41,14 +42,14 @@ def main():
     # that are not strictly required.
     print('[] Searching for file {0}...'.format(filename))
 
-    # Starting the scan over the MFT
-    ret_val = parser.find_file(filename)
+    try:
+        # Starting the scan over the MFT
+        ret_val = parser.find_file(filename)
 
-    if ret_val != FAILURE:
         # Success, print the file's contents
         print('[] Found it!\n{0}\'s contents:\n'.format(filename))
         print(ret_val, end='\n\n')
-    else:
+    except FileNotFoundException:
         # Failure, print an error message
         print('[] {0} file not found!'.format(filename), end='\n\n')
 

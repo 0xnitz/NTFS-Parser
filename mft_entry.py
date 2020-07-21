@@ -1,5 +1,6 @@
 from attribute_parser import *
-from constants import *
+from constants import DATA_TYPE, FILE_NAME_TYPE, UNALLOCATED_ENTRY, NO_SUCH_ATTRIBUTE, FILE_NAME_TYPE_BYTES
+from ntfs_exception import NTFSException
 
 
 class MFTEntry:
@@ -9,7 +10,6 @@ class MFTEntry:
 
     def __init__(self, entry):
         self.entry = entry
-        self.attribute_parser = AttributeParser()
 
     # CR: [design] How does it make sense that read_resident_data is a function
     # of MFTEntry but read_non_resident_data is not? Moreover, wouldn't it make
@@ -22,15 +22,15 @@ class MFTEntry:
         """
 
         # Cut the $DATA attribute from the entry
-        data_attribute = self.attribute_parser.get_attribute(DATA_TYPE, self)
+        data_attribute = AttributeParser.get_attribute(DATA_TYPE, self)
 
         # If the $DATA attribute is resident, parse and print it's data
-        return self.attribute_parser.parse_data(data_attribute)
+        return AttributeParser.parse_data(data_attribute)
 
     # CR: [design] This is a confusing choice. It is non-intuitive to compare
     # an entry to a file name. You should use accessors to export the file
     # name to clients, and then they can compare file names.
-    def __eq__(self, filename):
+    def get_filename(self):
         """
         This function will compare between a filename and the MFT Entry's $FILE_NAME attribute
         :param filename: filename to compare to the mft entry (string)
@@ -39,32 +39,13 @@ class MFTEntry:
 
         # Checking if the entry is a valid MFT entry
         if not self.is_valid():
-            return False
+            raise NTFSException
 
         # Cutting the $FILE_NAME attribute from the entry
-        filename_attribute = self.attribute_parser.get_attribute(FILE_NAME_TYPE, self)
+        filename_attribute = AttributeParser.get_attribute(FILE_NAME_TYPE, self)
 
-        # Entry is not allocated, doesn't have the $FILE_NAME attribute or is a directory return False
-        if filename_attribute == UNALLOCATED_ENTRY or\
-                filename_attribute == NO_SUCH_ATTRIBUTE or\
-                filename_attribute == DIRECTORY:
-            return False
-
-        # Extracting the filename text from the attribute, if an exception is thrown ignore it and return False
-        try:
-            # Extracting the filename from the mft entry
-            # CR: [implementation] Do decoding correctly! (Hint: What is the
-            # encoding of file names in NTFS?)
-            extracted_filename = self.attribute_parser.parse_filename(filename_attribute).decode()
-
-            # Removing the extra null bytes between each char
-            extracted_filename = ''.join(extracted_filename.split('\x00'))
-        # CR: [implementation] Catch specific exceptions
-        except:
-            return False
-
-        # Checking to see if we found the file
-        return extracted_filename == filename
+        # Extracting the filename from the mft entry
+        return AttributeParser.parse_filename(filename_attribute).decode('utf-16le')
 
     def is_valid(self):
         """

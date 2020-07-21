@@ -1,5 +1,6 @@
 import struct
 from constants import *
+from ntfs_exception import AttributeNotFoundException, NTFSException
 
 
 # CR: [design] You have so many ways to use this interface incorrectly. For
@@ -16,11 +17,12 @@ class AttributeParser:
     """
 
     def __init__(self):
-        pass
+        raise NTFSException
 
     # CR: [design] If this is a parsing function, why not return the data in
     # the most suitable type (string)?
-    def parse_filename(self, attribute):
+    @staticmethod
+    def parse_filename(attribute):
         """
         Extracts the actual filename from the $FILE_NAME attribute
         :param attribute: The binary attribute from the MFT
@@ -31,7 +33,8 @@ class AttributeParser:
         length_in_bytes = attribute[FILE_NAME_LENGTH] * 2
         return attribute[FILE_NAME_DATA:FILE_NAME_DATA+length_in_bytes]
 
-    def parse_data(self, attribute):
+    @staticmethod
+    def parse_data(attribute):
         """
         Extracts the actual data from the $DATA attribute
         :param attribute: The binary attribute from the MFT
@@ -42,7 +45,8 @@ class AttributeParser:
         length = struct.unpack('I', attribute[DATA_LENGTH:DATA_LENGTH+4])[0]
         return attribute[DATA_ATTRIBUTE_DATA:DATA_ATTRIBUTE_DATA+length]
 
-    def get_attribute(self, attribute_code, mft_entry):
+    @staticmethod
+    def get_attribute(attribute_code, mft_entry):
         """
         This function will receive an attribute code and an mft entry and will return the attribute's data
         :param attribute_code: attribute code in the mft
@@ -53,13 +57,11 @@ class AttributeParser:
         # If the in-use flag is 0 the entry is un allocated
         # CR: [design] Raise exceptions in illegal states
         if not mft_entry.entry[ENTRY_INUSE]:
-            return UNALLOCATED_ENTRY
+            raise NTFSException
 
         # If the directory flag is 1 the entry is a directory, we're looking for a file
         # CR: [design] Is this the place to make such decisions? What happens
         # when the requirements specify directories as well?
-        if mft_entry.entry[ENTRY_DIRECTORY]:
-            return DIRECTORY
 
         # Unpack the offset of the first attribute from the start of the entry
         offset = struct.unpack('H', mft_entry.entry[FIRST_ATTRIBUTE_OFFSET:FIRST_ATTRIBUTE_OFFSET+2])[0]
@@ -72,7 +74,7 @@ class AttributeParser:
             if current_attribute_code != attribute_code:
                 # End of MFT Entry, attribute not found
                 if current_attribute_code == END_OF_ENTRY:
-                    return NO_SUCH_ATTRIBUTE
+                    raise AttributeNotFoundException
 
                 # Jump to the next attribute
                 offset += attribute_len
@@ -82,9 +84,10 @@ class AttributeParser:
             return mft_entry.entry[offset:offset+attribute_len]
 
         # Attribute not found in entry
-        return NO_SUCH_ATTRIBUTE
+        raise AttributeNotFoundException
 
-    def is_resident(self, attribute):
+    @staticmethod
+    def is_resident(attribute):
         """
         This function checks if an attribute's data is resident by checking the non-resident flag
         :param attribute: The binary attribute
