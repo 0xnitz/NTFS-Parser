@@ -1,8 +1,8 @@
 from attribute import Attribute
 from run_list import RunList
 
-DATA_LENGTH = 0x10
-DATA_ATTRIBUTE_DATA = 0x18
+DATA_LENGTH_OFFSET = 0x10
+DATA_OFFSET = 0x18
 RUN_LIST_OFFSET = 0x20
 
 
@@ -14,8 +14,8 @@ class DataAttribute(Attribute):
 
     def get_data(self):
         if self.is_resident():
-            length_in_bytes = self.attribute_bytes[DATA_LENGTH] * 2
-            return self.attribute_bytes[DATA_ATTRIBUTE_DATA:DATA_ATTRIBUTE_DATA + length_in_bytes]
+            length_in_bytes = self.attribute_bytes[DATA_LENGTH_OFFSET] * 2
+            return self.attribute_bytes[DATA_OFFSET:DATA_OFFSET + length_in_bytes]
         else:
             return RunList(self.attribute_bytes[self.attribute_bytes[RUN_LIST_OFFSET]:],
                            self.sectors_per_cluster, self.vbr_offset).read_all_runs()

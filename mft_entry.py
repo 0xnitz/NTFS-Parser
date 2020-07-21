@@ -1,4 +1,4 @@
-from attribute_parser import AttributeParser, ENTRY_INUSE
+from attribute_parser import AttributeParser, ENTRY_INUSE_FLAG_OFFSET
 from file_name_attribute import FileNameAttribute
 from ntfs_exception import NTFSException
 from data_attribute import DataAttribute
@@ -26,4 +26,4 @@ class MFTEntry:
 
     def is_valid(self):
         return MFT_ENTRY_MAGIC == self.entry[:0x4] and \
-               FILE_NAME_TYPE_BYTES in self.entry and self.entry[ENTRY_INUSE]
+               FILE_NAME_TYPE_BYTES in self.entry and self.entry[ENTRY_INUSE_FLAG_OFFSET]

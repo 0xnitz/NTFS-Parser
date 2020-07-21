@@ -6,7 +6,16 @@ from typing import List
 class RunList:
     def __init__(self, run_list_bytes, sectors_per_cluster, vbr_offset):
         self.runs: List[DataRun] = []
+        self._parse_runs(run_list_bytes, sectors_per_cluster, vbr_offset)
 
+    def read_all_runs(self):
+        data = b''
+        for run in self.runs:
+            data += run.read_run()
+
+        return data
+
+    def _parse_runs(self, run_list_bytes, sectors_per_cluster, vbr_offset):
         prev_run = 0
         i = 0
 
@@ -35,10 +44,3 @@ class RunList:
 
             self.runs.append(current_run)
             prev_run = current_run
-
-    def read_all_runs(self):
-        data = b''
-        for run in self.runs:
-            data += run.read_run()
-
-        return data
