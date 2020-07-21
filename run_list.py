@@ -42,6 +42,3 @@ class RunList:
             data += run.read_run()
 
         return data
-
-    def sector_in_run(self, sector):
-        return any([run.sector_in_run(sector) for run in self.runs])

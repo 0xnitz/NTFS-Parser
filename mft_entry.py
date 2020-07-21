@@ -9,10 +9,6 @@ class MFTEntry:
     def __init__(self, entry):
         self.entry = entry
 
-    def read_resident_data(self):
-        data_attribute = AttributeParser.get_attribute(DATA_TYPE, self)
-        return AttributeParser.parse_data(data_attribute)
-
     def get_data(self, sectors_per_cluster, vbr_offset):
         return DataAttribute(AttributeParser.get_attribute(DATA_TYPE, self),
                              sectors_per_cluster, vbr_offset).get_data()

@@ -16,22 +16,22 @@ def main(args):
 
     if args['verbose'] is not None:
         verbose = True
-        print('[] Searching for file {0}...'.format(filename))
+        print(f'[] Searching for file {filename}...')
 
     try:
         ntfs_parser = NTFSParser()
         ret_val = ntfs_parser.find_file(filename)
 
         if verbose:
-            print('[] Found it!\n{0}\'s contents:\n'.format(filename))
+            print(f'[] Found it!\n{filename}\'s contents:\n')
 
         print(ret_val, end='\n\n')
     except FileNotFoundException:
         if verbose:
-            print('[] {0} file not found!'.format(filename), end='\n\n')
+            print('[] %s file not found!' % filename, end='\n\n')
 
     if timer:
-        print('[] Parser finished execution, runtime -> {0}s...'.format(time() - start))
+        print(f'[] Parser finished execution, runtime -> {time() - start}s...')
 
 
 if __name__ == "__main__":
