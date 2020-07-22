@@ -1,12 +1,13 @@
 from sector_reader import SectorReader, SECTOR_SIZE
 from mft_entry import MFTEntry, MFT_ENTRY_SIZE
 from physical_drive import PhysicalDrive
+from data_run import DRIVE_NUMBER
 
 
 class MFTLoader:
     def __init__(self):
-        self.drive = PhysicalDrive(0)
-        self.sector_reader = SectorReader(r'\\.\physicaldrive' + str(0))
+        self.drive = PhysicalDrive(DRIVE_NUMBER)
+        self.sector_reader = SectorReader(r'\\.\physicaldrive' + str(DRIVE_NUMBER))
         self.run_index = 0
         self.mft = self.load_mft()
 

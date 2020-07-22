@@ -12,7 +12,6 @@ class DataAttribute(Attribute):
         super().__init__(attribute_bytes)
         self.sectors_per_cluster = sectors_per_cluster
         self.vbr_offset = vbr_offset
-        self.run_index = -1
 
     def get_data(self, read_in_parts=False, run_index=0):
         if self.is_resident():

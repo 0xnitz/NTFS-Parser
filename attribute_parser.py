@@ -3,8 +3,8 @@ from ntfs_exception import AttributeNotFoundException, NTFSException
 from struct import unpack
 
 FIRST_ATTRIBUTE_OFFSET_IN_ENTRY = 0x14
-END_OF_ENTRY = 0xffffffff
 ENTRY_INUSE_FLAG_OFFSET = 0x16
+END_OF_ENTRY = 0xffffffff
 
 
 class AttributeParser:

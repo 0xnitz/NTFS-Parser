@@ -34,3 +34,6 @@ class MFTEntry:
 
     def get_entry(self):
         return self.entry
+
+    def is_valid(self):
+        return MFT_ENTRY_MAGIC == self.entry[:0x4]
