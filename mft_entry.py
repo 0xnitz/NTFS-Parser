@@ -14,9 +14,10 @@ class MFTEntry:
     def __init__(self, entry):
         self.entry = entry
 
-    def get_data(self, sectors_per_cluster, vbr_offset):
+    def get_data(self, sectors_per_cluster, vbr_offset, read_in_parts=False, run_index=0):
         return DataAttribute(AttributeParser.get_attribute(DATA_TYPE, self),
-                             sectors_per_cluster, vbr_offset).get_data()
+                             sectors_per_cluster, vbr_offset).get_data(
+            read_in_parts=read_in_parts, run_index=run_index)
 
     def get_filename(self):
         if not self.is_valid():

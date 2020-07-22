@@ -23,7 +23,7 @@ class MFTIterator:
         current_entry = b''
         while True:
             if self.mft_offset >= mft_length:
-                raise ReadEntireMFTException
+                self.loader.load_mft()
 
             sector = self.loader.mft[self.mft_offset:self.mft_offset+SECTOR_SIZE]
             if MFT_ENTRY_MAGIC in sector and current_entry != b'':
