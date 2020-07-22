@@ -1,5 +1,6 @@
-from attribute_parser import AttributeParser
+from ntfs_exception import AttributeNotFoundException
 from file_name_attribute import FileNameAttribute
+from attribute_parser import AttributeParser
 from data_attribute import DataAttribute
 
 FILE_NAME_TYPE = 0x30
@@ -13,7 +14,11 @@ class MFTEntry:
         self.entry = entry
 
     def get_data(self, sectors_per_cluster, vbr_offset, read_in_parts=False, run_index=0):
-        data_attributes = AttributeParser.get_attribute(DATA_TYPE, self)
+        try:
+            data_attributes = AttributeParser.get_attribute(DATA_TYPE, self)
+        except AttributeNotFoundException:
+            return b''
+
         data = b''
 
         for data_attribute in data_attributes:
@@ -24,9 +29,8 @@ class MFTEntry:
 
     def get_file_names(self):
         file_name_attributes = AttributeParser.get_attribute(FILE_NAME_TYPE, self)
-        file_names = []
 
-        for file_name in file_name_attributes:
-            file_names.append(FileNameAttribute(file_name).get_data())
+        return [FileNameAttribute(file_name).get_data() for file_name in file_name_attributes]
 
-        return file_names
+    def get_entry(self):
+        return self.entry
