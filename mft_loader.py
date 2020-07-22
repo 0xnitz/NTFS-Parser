@@ -1,5 +1,5 @@
-from mft_entry import MFTEntry, MFT_ENTRY_SIZE
 from sector_reader import SectorReader, SECTOR_SIZE
+from mft_entry import MFTEntry, MFT_ENTRY_SIZE
 from physical_drive import PhysicalDrive
 
 

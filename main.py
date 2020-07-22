@@ -8,16 +8,16 @@ from ntfs_parser import NTFSParser
 def main(args):
     try:
         ntfs_parser = NTFSParser()
+        print(time() - start)
         ret_val = ntfs_parser.get_file_contents(filename)
 
         if verbose:
-            print(f'[] Found it!\n{filename}\'s contents:\n')
+            print(f'[] Found it!\n[] {filename}\'s contents:\n')
 
         print(ret_val, end='\n\n')
     except FileNotFoundException:
         if verbose:
-            print('[] %s file not found!' % filename, end='\n\n')
-
+            print(f'[] {filename} file not found!', end='\n\n')
     if timer:
         print(f'[] Parser finished execution, runtime -> {time() - start}s...')
 
