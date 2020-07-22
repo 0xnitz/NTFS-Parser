@@ -1,5 +1,5 @@
-from ntfs_exception import NTFSException, ReadEntireMFTException
 from mft_entry import MFTEntry, MFT_ENTRY_MAGIC
+from ntfs_exception import NTFSException
 from sector_reader import SECTOR_SIZE
 from mft_loader import MFTLoader
 
@@ -24,6 +24,7 @@ class MFTIterator:
         while True:
             if self.mft_offset >= mft_length:
                 self.loader.load_mft()
+                self.mft_offset = 0
 
             sector = self.loader.mft[self.mft_offset:self.mft_offset+SECTOR_SIZE]
             if MFT_ENTRY_MAGIC in sector and current_entry != b'':

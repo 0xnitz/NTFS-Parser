@@ -10,17 +10,15 @@ class PhysicalDrive:
     def __init__(self, drive_number):
         self.partitions: List[Partition] = []
         self.drive_number = drive_number
+        self._get_partitions()
 
     def locate_largest_partition_vbr_offset(self):
-        self._get_partitions()
         return self._get_largest_partition().get_vbr_offset()
 
     def locate_largest_partition_mft_starting_sector(self):
-        self._get_partitions()
         return self._get_largest_partition().get_mft_starting_sector()
 
     def locate_largest_partition_sectors_per_cluster(self):
-        self._get_partitions()
         return self._get_largest_partition().get_sectors_per_cluster()
 
     def _get_largest_partition(self):
