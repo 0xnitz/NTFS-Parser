@@ -8,7 +8,6 @@ from ntfs_parser import NTFSParser
 def main(args):
     try:
         ntfs_parser = NTFSParser()
-        print(time() - start)
         ret_val = ntfs_parser.get_file_contents(filename)
 
         if verbose:
