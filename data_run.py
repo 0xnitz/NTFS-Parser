@@ -1,6 +1,6 @@
 from sector_reader import SectorReader
 
-DRIVE_NUMBER = 1
+DRIVE_NUMBER = 0
 
 
 class DataRun:
