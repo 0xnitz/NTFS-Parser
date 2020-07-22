@@ -18,5 +18,4 @@ class MFTLoader:
                                                 read_in_parts=True, run_index=self.run_index)
 
         self.run_index += 1
-
         return self.mft

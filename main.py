@@ -1,4 +1,4 @@
-from ntfs_exception import FileNotFoundException
+from ntfs_exception import FileNotFoundException, DiskDoesNotExist
 from ntfs_parser import NTFSParser
 
 from argparse import ArgumentParser
@@ -17,6 +17,9 @@ def main(args):
     except FileNotFoundException:
         if args['verbose']:
             print(f'[] {filename} file not found!', end='\n\n')
+    except DiskDoesNotExist:
+        if args['verbose']:
+            print(f'[] ERROR! Disk {disk} does not exist!')
 
     if args['time']:
         print(f'[] Parser finished execution, runtime -> {time() - start}s...')
