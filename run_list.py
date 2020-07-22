@@ -16,6 +16,12 @@ class RunList:
 
         return data
 
+    def read_run(self, run_index=0):
+        return self.runs[run_index].read_run()
+
+    def get_length(self):
+        return len(self.runs)
+
     def _parse_runs(self, run_list_bytes, sectors_per_cluster, vbr_offset):
         prev_run = 0
         i = 0
