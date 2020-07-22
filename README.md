@@ -13,7 +13,7 @@ The program will find the MFT, iterate over it's listings and their $FILE_NAME. 
 $ python3 main.py hosts
 [] Searching for file hosts...
 [] Found it!
-hosts's contents:
+hosts' contents:
 
 b"# Copyright (c) 1993-2009 Microsoft Corp.\r\n#\r\n# This is a sample HOSTS file ..."
 

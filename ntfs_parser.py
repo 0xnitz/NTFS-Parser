@@ -1,4 +1,4 @@
-from ntfs_exception import NTFSException, ReadEntireMFTException, FileNotFoundException, AttributeNotFoundException
+from ntfs_exception import NTFSException, FileNotFoundException
 from mft_iterator import MFTIterator
 
 
@@ -12,12 +12,10 @@ class NTFSParser:
     def get_file_contents(self, filename):
         for entry in self.mft_iterator:
             try:
-                if filename in entry.get_file_names():
-                    try:
+                if entry.is_valid():
+                    if filename in entry.get_file_names():
                         return entry.get_data(
                             self.mft_iterator.loader.drive.locate_largest_partition_sectors_per_cluster(),
                             self.mft_iterator.loader.drive.locate_largest_partition_vbr_offset())
-                    except AttributeNotFoundException:
-                        return b''
             except NTFSException:
                 continue

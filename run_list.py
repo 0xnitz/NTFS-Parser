@@ -23,7 +23,7 @@ class RunList:
         return len(self.runs)
 
     def _parse_runs(self, run_list_bytes, sectors_per_cluster, vbr_offset):
-        prev_run = 0
+        prev_run = None
         i = 0
 
         while i < len(run_list_bytes):
@@ -44,7 +44,7 @@ class RunList:
             current_run.cluster_length = bytes_to_number(cluster_count)
             current_run.sectors_per_cluster = sectors_per_cluster
 
-            if prev_run != 0:
+            if prev_run is not None:
                 current_run.starting_cluster += prev_run.starting_cluster
 
             i += 1 + cluster_count_length + first_cluster_length
