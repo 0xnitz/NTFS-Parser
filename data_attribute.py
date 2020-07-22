@@ -1,4 +1,4 @@
-from ntfs_exception import ReadEntireMFTException
+from ntfs_exception import FileNotFoundException
 from attribute import Attribute
 from run_list import RunList
 
@@ -24,7 +24,7 @@ class DataAttribute(Attribute):
                                                  self.sectors_per_cluster, self.vbr_offset)
 
                 if run_index == run_list.get_length():
-                    raise ReadEntireMFTException
+                    raise FileNotFoundException
                 return run_list.read_run(run_index)
             else:
                 return RunList(self.attribute_bytes[self.attribute_bytes[RUN_LIST_OFFSET]:],

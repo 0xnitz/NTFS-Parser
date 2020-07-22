@@ -1,11 +1,9 @@
-from attribute_parser import AttributeParser, ENTRY_INUSE_FLAG_OFFSET
+from attribute_parser import AttributeParser
 from file_name_attribute import FileNameAttribute
 from data_attribute import DataAttribute
-from ntfs_exception import NTFSException
 
 FILE_NAME_TYPE = 0x30
 DATA_TYPE = 0x80
-FILE_NAME_TYPE_BYTES = b'\x30\x00\x00\x00'
 MFT_ENTRY_MAGIC = b'FILE'
 MFT_ENTRY_SIZE = 1024
 
@@ -15,16 +13,20 @@ class MFTEntry:
         self.entry = entry
 
     def get_data(self, sectors_per_cluster, vbr_offset, read_in_parts=False, run_index=0):
-        return DataAttribute(AttributeParser.get_attribute(DATA_TYPE, self),
-                             sectors_per_cluster, vbr_offset).get_data(
-            read_in_parts=read_in_parts, run_index=run_index)
+        data_attributes = AttributeParser.get_attribute(DATA_TYPE, self)
+        data = b''
 
-    def get_filename(self):
-        if not self.is_valid():
-            raise NTFSException
+        for data_attribute in data_attributes:
+            data += DataAttribute(data_attribute, sectors_per_cluster, vbr_offset)\
+                .get_data(read_in_parts=read_in_parts, run_index=run_index)
 
-        return FileNameAttribute(AttributeParser.get_attribute(FILE_NAME_TYPE, self)).get_data()
+        return data
 
-    def is_valid(self):
-        return MFT_ENTRY_MAGIC == self.entry[:0x4] and \
-               FILE_NAME_TYPE_BYTES in self.entry and self.entry[ENTRY_INUSE_FLAG_OFFSET]
+    def get_file_names(self):
+        file_name_attributes = AttributeParser.get_attribute(FILE_NAME_TYPE, self)
+        file_names = []
+
+        for file_name in file_name_attributes:
+            file_names.append(FileNameAttribute(file_name).get_data())
+
+        return file_names

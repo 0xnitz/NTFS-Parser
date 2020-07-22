@@ -20,9 +20,6 @@ class Partition:
 
         self._read_boot_sector()
 
-    def get_size(self):
-        return self.size
-
     def get_mft_starting_sector(self):
         return self.mft_starting_sector
 
