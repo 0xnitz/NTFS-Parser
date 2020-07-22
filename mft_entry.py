@@ -13,7 +13,7 @@ class MFTEntry:
     def __init__(self, entry):
         self.entry = entry
 
-    def get_data(self, sectors_per_cluster, vbr_offset, read_in_parts=False, run_index=0):
+    def get_data(self, disk, sectors_per_cluster, read_in_parts=False, run_index=0):
         try:
             data_attributes = AttributeParser.get_attribute(DATA_TYPE, self)
         except AttributeNotFoundException:
@@ -22,8 +22,8 @@ class MFTEntry:
         data = b''
 
         for data_attribute in data_attributes:
-            data += DataAttribute(data_attribute, sectors_per_cluster, vbr_offset)\
-                .get_data(read_in_parts=read_in_parts, run_index=run_index)
+            data += DataAttribute(data_attribute, sectors_per_cluster)\
+                .get_data(disk, read_in_parts=read_in_parts, run_index=run_index)
 
         return data
 

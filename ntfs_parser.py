@@ -3,9 +3,10 @@ from mft_iterator import MFTIterator
 
 
 class NTFSParser:
-    def __init__(self):
+    def __init__(self, disk):
         try:
-            self.mft_iterator = MFTIterator()
+            self.mft_iterator = MFTIterator(disk)
+            self.disk = disk
         except NTFSException:
             raise FileNotFoundException
 
@@ -14,8 +15,7 @@ class NTFSParser:
             try:
                 if entry.is_valid():
                     if filename in entry.get_file_names():
-                        return entry.get_data(
-                            self.mft_iterator.loader.drive.locate_largest_partition_sectors_per_cluster(),
-                            self.mft_iterator.loader.drive.locate_largest_partition_vbr_offset())
+                        return entry.get_data(self.disk,
+                                              self.mft_iterator.loader.partition.get_sectors_per_cluster())
             except NTFSException:
                 continue

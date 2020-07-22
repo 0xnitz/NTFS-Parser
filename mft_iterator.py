@@ -7,12 +7,13 @@ from sys import byteorder
 
 
 class MFTIterator:
-    def __init__(self):
+    def __init__(self, disk):
         if byteorder != 'little':
             raise NTFSException
 
-        self.loader = MFTLoader()
+        self.loader = MFTLoader(disk)
         self.mft_offset = 0
+        self.disk = disk
 
     def __iter__(self):
         return self
@@ -23,7 +24,7 @@ class MFTIterator:
         current_entry = b''
         while True:
             if self.mft_offset >= mft_length:
-                self.loader.load_mft()
+                self.loader.load_mft(self.disk)
                 self.mft_offset = 0
 
             sector = self.loader.mft[self.mft_offset:self.mft_offset+SECTOR_SIZE]
