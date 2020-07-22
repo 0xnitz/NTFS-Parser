@@ -5,9 +5,9 @@ from typing import List
 
 
 class RunList:
-    def __init__(self, run_list_bytes, sectors_per_cluster, vbr_offset):
+    def __init__(self, run_list_bytes, sectors_per_cluster, disk):
         self.runs: List[DataRun] = []
-        self._parse_runs(run_list_bytes, sectors_per_cluster, vbr_offset)
+        self._parse_runs(run_list_bytes, sectors_per_cluster, disk)
 
     def read_all_runs(self):
         data = b''
@@ -22,12 +22,12 @@ class RunList:
     def get_length(self):
         return len(self.runs)
 
-    def _parse_runs(self, run_list_bytes, sectors_per_cluster, vbr_offset):
+    def _parse_runs(self, run_list_bytes, sectors_per_cluster, disk):
         prev_run = None
         i = 0
 
         while i < len(run_list_bytes):
-            current_run = DataRun(vbr_offset)
+            current_run = DataRun(disk)
 
             size = run_list_bytes[i]
             if size == 0:

@@ -8,3 +8,7 @@ class FileNotFoundException(NTFSException):
 
 class AttributeNotFoundException(NTFSException):
     pass
+
+
+class DiskDoesNotExist(BaseException):
+    pass
