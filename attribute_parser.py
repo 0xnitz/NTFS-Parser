@@ -1,46 +1,33 @@
-from ntfs_exception import AttributeNotFoundException, NTFSException
+from ntfs_exception import NTFSException
 
 from struct import unpack
 
-# CR: [design] Constants should belong to a class
-FIRST_ATTRIBUTE_OFFSET_IN_ENTRY = 0x14
-ENTRY_INUSE_FLAG_OFFSET = 0x16
-END_OF_ENTRY = 0xffffffff
-
 
 class AttributeParser:
+    ENTRY_INUSE_FLAG_OFFSET = 0x16
+    END_OF_ENTRY = 0xffffffff
+
     def __init__(self):
-        raise NTFSException
+        raise NTFSException()
 
-    # CR: [finish] Rename to get_attributes
-    # CR: [implementation] Break this function down
     @staticmethod
-    def get_attribute(attribute_code, mft_entry):
-        # CR: [finish] Rename to attributes
-        attribute = []
-        entry = mft_entry.get_entry()
-        offset = unpack('H', entry[FIRST_ATTRIBUTE_OFFSET_IN_ENTRY:FIRST_ATTRIBUTE_OFFSET_IN_ENTRY + 2])[0]
+    def get_attributes(attribute_code, mft_entry):
+        attributes = []
+        attributes_raw = mft_entry.get_attributes_raw_data()
+        offset = 0
 
-        while offset < len(entry):
-            attribute_len = unpack('I', entry[offset+4:offset+8])[0]
-            current_attribute_code = unpack('I', entry[offset:offset+4])[0]
+        while offset < len(attributes_raw):
+            current_attribute_code = unpack('I', attributes_raw[offset:offset + 4])[0]
+            attribute_len = unpack('I', attributes_raw[offset+4:offset+8])[0]
 
             if current_attribute_code != attribute_code:
-                if current_attribute_code == END_OF_ENTRY:
-                    if len(attribute) > 0:
-                        return attribute
-
-                    # CR: [design] There's no need for an exception here. An
-                    # empty list will suffice.
-                    raise AttributeNotFoundException
+                if current_attribute_code == AttributeParser.END_OF_ENTRY:
+                    return attributes
 
                 offset += attribute_len
                 continue
 
-            attribute.append(entry[offset:offset+attribute_len])
+            attributes.append(attributes_raw[offset:offset+attribute_len])
             offset += attribute_len
 
-        if len(attribute) > 0:
-            return attribute
-
-        raise AttributeNotFoundException
+            return attributes

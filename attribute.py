@@ -1,16 +1,19 @@
-ATTRIBUTE_NON_RESIDENT_FLAG_OFFSET = 0x8
+from run_list import RunList
 
 
 class Attribute:
+    RUN_LIST_OFFSET = 0x20
+    ATTRIBUTE_NON_RESIDENT_FLAG_OFFSET = 0x8
+
     def __init__(self, attribute_bytes):
-        self.attribute_bytes = attribute_bytes
+        self._attribute_bytes = attribute_bytes
 
     def is_resident(self):
-        return not self.attribute_bytes[ATTRIBUTE_NON_RESIDENT_FLAG_OFFSET]
+        return not self._attribute_bytes[Attribute.ATTRIBUTE_NON_RESIDENT_FLAG_OFFSET]
 
-    # CR: [design] The concept of resident and non-resident data should be
-    # handled by this class, as this is a behaviour that is common to all
-    # attributes. Specializations of the class should only have to deal with
-    # parsing the data itself.
-    def get_data(self):
-        pass
+    def get_data(self, disk, sectors_per_cluster):
+        if self.is_resident():
+            pass
+        else:
+            return RunList(self._attribute_bytes[self._attribute_bytes[Attribute.RUN_LIST_OFFSET]:],
+                           sectors_per_cluster, disk).read_all_runs()
