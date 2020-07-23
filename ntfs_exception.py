@@ -10,5 +10,5 @@ class AttributeNotFoundException(NTFSException):
     pass
 
 
-class DiskDoesNotExist(BaseException):
+class DiskDoesNotExist(NTFSException):
     pass

@@ -5,7 +5,7 @@ def bytes_to_number(bytes_object):
     bytes_object_length = len(bytes_object)
 
     if len(bytes_object) > 8:
-        raise ValueError
+        raise ValueError()
 
     if bytes_object_length == 1:
         return bytes_object[0]

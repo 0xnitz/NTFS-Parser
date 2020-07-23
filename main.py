@@ -1,4 +1,4 @@
-from ntfs_exception import FileNotFoundException, DiskDoesNotExist
+from ntfs_exception import NTFSException
 from ntfs_parser import NTFSParser
 
 from argparse import ArgumentParser
@@ -8,20 +8,18 @@ from time import time
 def main(args):
     try:
         parser = NTFSParser(disk)
-        ret_val = parser.get_file_contents(filename)
+        file_found = parser.get_file_contents(filename)
 
-        if args['verbose']:
-            print(f'[] Found it!\n[] {filename}\'s contents:\n')
+        if args.verbose:
+            print(f'[] Found it!\n[] {filename}\'s contents:')
 
-        print(ret_val, end='\n\n')
-    except FileNotFoundException:
-        if args['verbose']:
-            print(f'[] {filename} file not found!', end='\n\n')
-    except DiskDoesNotExist:
-        if args['verbose']:
-            print(f'[] ERROR! Disk {disk} does not exist!')
+        print(file_found.get_data())
 
-    if args['time']:
+    except NTFSException as e:
+        if args.verbose:
+            print(str(e))
+
+    if args.time:
         print(f'[] Parser finished execution, runtime -> {time() - start}s...')
 
 
@@ -35,15 +33,15 @@ if __name__ == "__main__":
     arg_parser.add_argument('-t', '--time', help='Add runtime measurement', required=False, action='store_true')
     arg_parser.add_argument('-v', '--verbose', help='Adding some prints', required=False, action='store_true')
 
-    arguments = vars(arg_parser.parse_args())
+    arguments = arg_parser.parse_args()
 
-    filename = arguments['file']
-    disk = arguments['disk']
+    filename = arguments.file
+    disk = arguments.disk
 
-    if arguments['time']:
+    if arguments.time:
         start = time()
 
-    if arguments['verbose']:
+    if arguments.verbose:
         print(f'[] Searching for file {filename}...')
 
     main(arguments)

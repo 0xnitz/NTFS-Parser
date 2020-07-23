@@ -1,21 +1,15 @@
-from ntfs_exception import NTFSException, FileNotFoundException
-from mft_iterator import MFTIterator
+from mft import MFT
+from file_info import File
 
 
 class NTFSParser:
     def __init__(self, disk):
-        try:
-            self.mft_iterator = MFTIterator(disk)
-            self.disk = disk
-        except NTFSException:
-            raise FileNotFoundException
+        disk = r'\\.\\' + disk + ':'
+        self._mft = MFT(disk)
+        self._disk = disk
 
     def get_file_contents(self, filename):
-        for entry in self.mft_iterator:
-            try:
-                if entry.is_valid():
-                    if filename in entry.get_file_names():
-                        return entry.get_data(self.disk,
-                                              self.mft_iterator.loader.partition.get_sectors_per_cluster())
-            except NTFSException:
-                continue
+        for entry in self._mft:
+            if filename in entry.get_file_names():
+                return File(filename, entry.get_data(self._disk,
+                                                     self._mft.get_sectors_per_cluster()))
