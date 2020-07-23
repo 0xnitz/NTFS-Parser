@@ -35,7 +35,7 @@ class MFT:
                 self.mft_offset = 0
 
             sector = self._mft_chunk[self.mft_offset:self.mft_offset + SectorReader.SECTOR_SIZE]
-            if MFTEntry.MFT_ENTRY_MAGIC in sector and current_entry != b'':
+            if MFTEntry.MFT_ENTRY_MAGIC == sector[:0x4] and current_entry != b'':
                 next_entry = MFTEntry(current_entry)
                 if not next_entry.is_valid():
                     return self.__next__()
