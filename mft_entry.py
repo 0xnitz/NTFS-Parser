@@ -13,6 +13,7 @@ class MFTEntry:
     def __init__(self, entry):
         self.entry = entry
 
+    # CR: [design] +1 for encapsulation of getting the attribute data
     def get_data(self, disk, sectors_per_cluster, read_in_parts=False, run_index=0):
         try:
             data_attributes = AttributeParser.get_attribute(DATA_TYPE, self)
@@ -32,6 +33,8 @@ class MFTEntry:
 
         return [FileNameAttribute(file_name).get_data() for file_name in file_name_attributes]
 
+    # CR: [design] This defies encapsulation entirely. This class should handle
+    # the parsing and export relevant data only (like is_valid).
     def get_entry(self):
         return self.entry
 

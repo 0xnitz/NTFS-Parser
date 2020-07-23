@@ -8,10 +8,13 @@ from sys import byteorder
 
 class MFTIterator:
     def __init__(self, disk):
+        # CR: [design] Is it hard to support big endian?
         if byteorder != 'little':
+            # CR: [finish] Raise an instance not a type. Provide information
             raise NTFSException
 
         self.loader = MFTLoader(disk)
+        # CR: [finish] Initialize in __iter__
         self.mft_offset = 0
         self.disk = disk
 
@@ -24,6 +27,8 @@ class MFTIterator:
         current_entry = b''
         while True:
             if self.mft_offset >= mft_length:
+                # CR: [implementation] You are calling load_mft for every
+                # iteration + when initializing self.loader
                 self.loader.load_mft(self.disk)
                 self.mft_offset = 0
 

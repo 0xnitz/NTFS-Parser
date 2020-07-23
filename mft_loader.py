@@ -3,11 +3,19 @@ from mft_entry import MFTEntry, MFT_ENTRY_SIZE
 from partition import Partition
 
 
+# CR: [design] I'm not sure if there's a clear benefiet in having this class as
+# a seperate entity. You could make load_mft a private function in MftIterator
+# (and just call that class Mft)
 class MFTLoader:
     def __init__(self, disk):
+        # CR: [bug?] You have an extra slash
         self.sector_reader = SectorReader(r'\\.\\' + disk + ':')
+        # CR: [design] Is partition part of the Mft, or the other way around?
         self.partition = Partition(disk)
+        # CR: [design] This doesn't belong in this level of abstraction. It's
+        # also not really used.
         self.run_index = 0
+        # CR: [design] Why call load_mft from init?
         self.mft = self.load_mft(disk)
 
     def load_mft(self, disk):

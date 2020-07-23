@@ -1,6 +1,8 @@
 from sector_reader import SectorReader
 from utils import bytes_to_number
 
+
+# CR: [design] These should belong to a class
 OEM_ID = b'NTFS'
 OEM_ID_OFFSET = 0x3
 MFT_START_SECTOR_OFFSET = 0x30

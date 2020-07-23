@@ -10,10 +10,12 @@ def main(args):
         parser = NTFSParser(disk)
         ret_val = parser.get_file_contents(filename)
 
+        # CR: [implementation] Use logging library to control debug prints
         if args['verbose']:
             print(f'[] Found it!\n[] {filename}\'s contents:\n')
 
         print(ret_val, end='\n\n')
+    # CR: [implementation] Just catch NTFSException and print its contents
     except FileNotFoundException:
         if args['verbose']:
             print(f'[] {filename} file not found!', end='\n\n')
@@ -35,6 +37,10 @@ if __name__ == "__main__":
     arg_parser.add_argument('-t', '--time', help='Add runtime measurement', required=False, action='store_true')
     arg_parser.add_argument('-v', '--verbose', help='Adding some prints', required=False, action='store_true')
 
+    # CR: [implementation] Why use vars()? You coukd simply do
+    # arguments = arg_parser.parse_args()
+    # And then
+    # arguments.file
     arguments = vars(arg_parser.parse_args())
 
     filename = arguments['file']

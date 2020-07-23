@@ -33,6 +33,7 @@ class RunList:
             if size == 0:
                 break
 
+            # CR: [design] This looks like the logic of a single run
             cluster_count_length = size & 0xf
             first_cluster_length = size >> 4
 
